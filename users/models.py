@@ -19,7 +19,7 @@ class Users(models.Model):
     """
     parent_id = models.IntegerField()
     group = models.ForeignKey('UserGroup')
-    tags = models.CharField(max_length=255, null=True, default=Null)
+    tags = models.CharField(max_length=255, null=True, blank=True, default=None)
     name = models.CharField(max_length=255)
     email = models.CharField(max_length=255, unique=True)
     # password = models.CharField(max_length=60)

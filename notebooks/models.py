@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from users.models import Users, UserGroup
+from solution.models import Solution
+from notebook.models import Notebook
 
 
 # Create your models here.
