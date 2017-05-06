@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'notebooks',
     'performance',
     'ensembles',
-    'customsolution'
+    'customsolution',
+    'categories',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -84,14 +85,17 @@ WSGI_APPLICATION = 'knowledge.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'know',
+        'USER': 'postgres',
+        'PASSWORD': 'kkk',
+        'HOST': 'localhost',
     }
 }
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.AllowAny',
     ],
     'PAGE_SIZE': 10
 }

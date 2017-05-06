@@ -5,18 +5,44 @@ from users.models import User, Category, Price, Type, UserGroup
 
 
 # Create your models here.
+REQUESTED = -1
+COMPLETE = 1
+
+SOLUTION_STATUS_CHOICE = (
+    (REQUESTED, 'requested'),
+    (COMPLETE, 'complete'),
+    )
+
+ENSEMBLE_CHOICE = (
+    (-1, 'requested'),
+    (0, 'complete'),
+    (1, 'none')
+    )
+
+PERFORMANCE_CHOICE = (
+    (-1, 'A/B'),
+    (0, 'onearmedbandit'),
+    (1, 'none')
+    )
+
+LIBRARY_CHOICE = (
+    (0, 'notebook'),
+    (1, 'solution'),
+    (2, 'ensemble'),
+    (3, 'metaensemble'),
+    (4, 'dataset'),
+    )
+
+META_ENSEMBLE_CHOICE = (
+    (0, 'ensemble'),
+    (1, 'solution')
+    )
+
+
 class Solution(models.Model):
     """
         Solution model
     """
-    REQUESTED = -1
-    COMPLETE = 1
-
-    SOLUTION_STATUS_CHOICE = (
-        (REQUESTED, 'requested'),
-        (COMPLETE, 'complete'),
-        )
-
     category = models.ForeignKey(Category, default=0)
     type_id = models.ForeignKey(Type, default=0)
     solutionparent = models.ForeignKey('Solution', default=0)
@@ -36,12 +62,6 @@ class Solution(models.Model):
 
 
 class Ensemble(models.Model):
-    ENSEMBLE_CHOICE = (
-        (-1, 'requested'),
-        (0, 'complete'),
-        (1, 'none')
-        )
-
     user = models.ForeignKey(User)
     usergroup = models.ForeignKey(UserGroup)
     foreign_id = models.IntegerField()
@@ -54,12 +74,6 @@ class Ensemble(models.Model):
 
 
 class Performance(models.Model):
-    PERFORMANCE_CHOICE = (
-        (-1, 'A/B'),
-        (0, 'onearmedbandit'),
-        (1, 'none')
-        )
-
     user = models.ForeignKey(User)
     usergroup = models.ForeignKey(UserGroup)
     solution = models.ForeignKey('Solution')
@@ -105,14 +119,6 @@ class CustomSolution(models.Model):
 
 
 class SolutionLibrary(models.Model):
-    LIBRARY_CHOICE = (
-        (0, 'notebook'),
-        (1, 'solution'),
-        (2, 'ensemble'),
-        (3, 'metaensemble'),
-        (4, 'dataset'),
-        )
-
     user = models.ForeignKey(User)
     customesolution = models.ForeignKey('CustomSolution')
     foreign_id = models.IntegerField()
@@ -123,11 +129,6 @@ class SolutionLibrary(models.Model):
 
 
 class MetaEnsembel(models.Model):
-    META_ENSEMBLE_CHOICE = (
-        (0, 'ensemble'),
-        (1, 'solution')
-        )
-
     id = models.BigIntegerField(primary_key=True)
     collection_id = models.IntegerField()
     foreign_id = models.IntegerField()
