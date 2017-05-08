@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from decimal import Decimal
 
 
 TREND_CHOICE = (
@@ -35,9 +36,12 @@ class UserGroup(models.Model):
     """
     name = models.CharField(max_length=55)
     caps = models.TextField(null=True, blank=True, default=None)
-
+    category = models.ForeignKey('Category')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __unicode(self):
+        return self.name
 
 
 class User(models.Model):
@@ -51,15 +55,15 @@ class User(models.Model):
     email = models.CharField(max_length=255, unique=True)
     password = models.CharField(max_length=60)
     remember_token = models.CharField(max_length=100)
-    images = models.CharField(max_length=255, null=True, blank=True, default=None)
+    image = models.CharField(max_length=255, null=True, blank=True, default=None)
     profile_name = models.CharField(max_length=255, null=True, blank=True, default=None)
     profile_description = models.TextField(null=True, blank=True, default=None)
-    api_paypal = models.CharField(max_length=255, null=True, blank=True, default=0)
-    api_payment = models.CharField(max_length=255, null=True, blank=True, default=0)
+    api_paypal = models.CharField(max_length=255, default=0, null=True, blank=True)
+    api_payment = models.CharField(max_length=255, default=0, null=True, blank=True)
     commissions = models.DecimalField(max_digits=15, decimal_places=8, default=0)
     commission_rate = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    commission_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    commission_monthtodata = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    commission_total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.0'))
+    commission_monthtodata = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.0'))
     number_transaction = models.IntegerField(default=0)
     trend = models.IntegerField(choices=TREND_CHOICE, default=0)
     total_earned = models.IntegerField(default=0)
@@ -80,18 +84,13 @@ class User(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
 
-class Price(models.Model):
-    user = models.ForeignKey('User')
-    # notebook = models.ForeignKey(Notebook)
-    # solution = models.ForeignKey(Solution)
-    # dataset = models.ForeignKey(DataSet)
-    # datafield = models.ForeignKey(DataField)
-    price = models.FloatField(null=True, blank=True, default=None)
+class SolutionType(models.Model):
+    name = models.CharField(max_length=55)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
 
-class Type(models.Model):
+class NotebookType(models.Model):
     name = models.CharField(max_length=55)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)

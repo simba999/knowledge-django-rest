@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 
-from solutions.models import Solution
-from categories.serializers import SolutionSerializer
+from solutions.models import Solution, Category, Performance, Notebook
+from api.serializers import SolutionSerializer
 
 
 # Create your views here.
@@ -41,3 +41,9 @@ class CategoryDetailView(APIView):
         serializer = SolutionSerializer(solution)
         return Response(serializer.data)
         # return Response({})
+
+
+class PerformanceNotebooksView(APIView):
+    def get(self, request, notebook_id, user_id, format=None):
+        performance = Performance.objects.fiter(user__id=user_id)
+        print type(performance)
