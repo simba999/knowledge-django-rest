@@ -94,7 +94,7 @@ class CategoryDetailView(APIView):
     def get(self, request, id, format=None):
         print "sdfsd"
         print id
-        notebooks = self.get_notebook_objects(self, id)
+        notebooks = self.get_notebook_objects(id)
         print notebooks
         serializer = NotebookSerializer(notebooks)
         return Response(serializer.data)

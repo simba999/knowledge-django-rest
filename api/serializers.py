@@ -13,7 +13,7 @@ class SolutionSerializer(serializers.ModelSerializer):
 class NotebookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notebook
-        fields = ('solution', 'category', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
+        fields = ('category', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
             'price', 'accessparameters', 'description', 'datafields', 'language', 'author', 'status', 'created_at', 'updated_at')
 
 
