@@ -53,7 +53,7 @@ class Solution(models.Model):
     user = models.ForeignKey(User, default=0, related_name="user_solution")
     usergroup_ID = models.ForeignKey(UserGroup)
     type = models.ForeignKey(SolutionType, default=0)
-    library_id = models.IntegerField()
+    library_id = models.IntegerField(null=True, blank=True)
     solutionparent = models.ForeignKey('Solution', default=None, null=True, blank=True)
     price = models.ManyToManyField("Price", blank=True)
     workflow_id = models.IntegerField(null=True)
@@ -101,7 +101,7 @@ class Notebook(models.Model):
     """
     solution = models.ManyToManyField('Solution', blank=True)
     category = models.ForeignKey(Category, default=0)
-    parent = models.ForeignKey('Notebook', null=True, blank=True)
+    parent = models.ForeignKey('Notebook', null=True, blank=True, default=None)
     type = models.ForeignKey(NotebookType, default=0)
     jupyternotebook_ID = models.IntegerField(default=0)
     graphdatabase_ID = models.IntegerField(default=0)
@@ -144,7 +144,7 @@ class DataSet(models.Model):
     user = models.ForeignKey(User, related_name="user_dataset")
     # solution = models.ForeignKey("Solution")
     category = models.ForeignKey(Category)
-    # type = models.ForeignKey(Type)
+    type = models.IntegerField(default=0)
     price = models.ManyToManyField("Price", blank=True)
     accessparameters = models.CharField(max_length=255, null=True, blank=True)
     rating = models.IntegerField(default=0)
@@ -156,12 +156,14 @@ class DataSet(models.Model):
 
 
 class DataField(models.Model):
+    user = models.ForeignKey(User, null=True, blank=True, related_name='user_datafield')
+    solution = models.ForeignKey('Solution', null=True, blank=True)
     dataset = models.ForeignKey('DataSet', default=0)
-    price = models.ManyToManyField('Price')
+    price = models.ManyToManyField('Price', blank=True)
     accessparameters = models.CharField(max_length=255, null=True, blank=True, default=None)
     description = models.CharField(max_length=255)
     datatype = models.CharField(max_length=255)
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, related_name='author_datafield')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     
