@@ -16,3 +16,9 @@ class NotebookSerializer(serializers.ModelSerializer):
         fields = ('solution', 'category', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
             'price', 'accessparameters', 'description', 'datafields', 'language', 'author', 'status', 'created_at', 'updated_at')
 
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'created_at', 'updated_at') 
+

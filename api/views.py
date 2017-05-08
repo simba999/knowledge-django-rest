@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 
 from solutions.models import Solution, Category, Performance, Notebook
-from api.serializers import SolutionSerializer, NotebookSerializer
+from api.serializers import SolutionSerializer, NotebookSerializer, CategorySerializer
 from rest_framework.renderers import JSONRenderer
 
 
@@ -69,4 +69,32 @@ class SolutionLibraryView(APIView):
         data = JSONRenderer().render(serializer.data)
         print serializer
         print "DATA: ", data
+        return Response(serializer.data)
+
+
+#Category APIs
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    def list(self, request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+
+class CategoryDetailView(APIView):
+    def get_notebook_objects(self, pk):
+        try:
+            return Notebook.objects.filter(category__id=pk)
+        except Notebook.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        print "sdfsd"
+        print id
+        notebooks = self.get_notebook_objects(self, id)
+        print notebooks
+        serializer = NotebookSerializer(notebooks)
         return Response(serializer.data)
