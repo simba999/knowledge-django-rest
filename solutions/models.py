@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from api.models import User, Category, Type, UserGroup, NotebookType, SolutionType
+from api.models import User, Category, UserGroup, NotebookType, SolutionType
 
 
 # Create your models here.
@@ -50,11 +50,11 @@ class Solution(models.Model):
         Solution model
     """
     category = models.ForeignKey(Category, default=0)
-    user = models.ForeignKey(User, default=0)
-    usergroup_ID = models.ForeignKey('UserGroup')
+    user = models.ForeignKey(User, default=0, related_name="user_solution")
+    usergroup_ID = models.ForeignKey(UserGroup)
     type = models.ForeignKey(SolutionType, default=0)
     library_id = models.IntegerField()
-    solutionparent = models.ForeignKey('Solution', default=0, null=True)
+    solutionparent = models.ForeignKey('Solution', default=None, null=True)
     price = models.ManyToManyField("Price", blank=True)
     workflow_id = models.IntegerField(null=True)
     tags = models.CharField(max_length=255, null=True)
@@ -66,7 +66,7 @@ class Solution(models.Model):
     ensemble = models.ForeignKey('Ensemble', null=True)
     metaensemble = models.ForeignKey('MetaEnsemble', null=True)
     dataset = models.ManyToManyField('Dataset', blank=True)
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, related_name="author_solution")
     status = models.IntegerField(choices=SOLUTION_STATUS_CHOICE, default=-1)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -88,7 +88,7 @@ class Ensemble(models.Model):
 class Performance(models.Model):
     user = models.ForeignKey(User)
     usergroup = models.ForeignKey(UserGroup)
-    solution = models.ForeignKey('Solution', null=Ture)
+    solution = models.ForeignKey('Solution', null=True)
     results = models.BinaryField(null=True, blank=True)
     ABTest = models.IntegerField(default=1)
     Date = models.DateTimeField()
@@ -141,7 +141,7 @@ class MetaEnsemble(models.Model):
 
 
 class DataSet(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name="user_dataset")
     # solution = models.ForeignKey("Solution")
     category = models.ForeignKey(Category)
     # type = models.ForeignKey(Type)
@@ -150,7 +150,7 @@ class DataSet(models.Model):
     rating = models.IntegerField(default=0)
     description = models.CharField(max_length=255)
     datafields = models.BinaryField()
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, related_name="author_dataset")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -172,7 +172,6 @@ class Price(models.Model):
     price = models.FloatField(null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-
 
 
 

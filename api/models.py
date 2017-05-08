@@ -36,7 +36,7 @@ class UserGroup(models.Model):
     """
     name = models.CharField(max_length=55)
     caps = models.TextField(null=True, blank=True, default=None)
-    category = models.ForeignKey('Category')
+    category = models.ForeignKey('Category', blank=True, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
