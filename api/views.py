@@ -87,7 +87,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class CategoryDetailView(APIView):
     def get_notebook_objects(self, pk):
         try:
-            return Notebook.objects.filter(category__id=pk)
+            return Notebook.objects.filter(pk=pk)
         except Notebook.DoesNotExist:
             raise Http404
 
