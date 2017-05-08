@@ -54,7 +54,7 @@ class Solution(models.Model):
     usergroup_ID = models.ForeignKey(UserGroup)
     type = models.ForeignKey(SolutionType, default=0)
     library_id = models.IntegerField()
-    solutionparent = models.ForeignKey('Solution', default=None, null=True)
+    solutionparent = models.ForeignKey('Solution', default=None, null=True, blank=True)
     price = models.ManyToManyField("Price", blank=True)
     workflow_id = models.IntegerField(null=True)
     tags = models.CharField(max_length=255, null=True)
@@ -63,8 +63,8 @@ class Solution(models.Model):
     description = models.TextField(null=True)
     rating = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
-    ensemble = models.ForeignKey('Ensemble', null=True)
-    metaensemble = models.ForeignKey('MetaEnsemble', null=True)
+    ensemble = models.ForeignKey('Ensemble', null=True, blank=True)
+    metaensemble = models.ForeignKey('MetaEnsemble', null=True, blank=True)
     dataset = models.ManyToManyField('Dataset', blank=True)
     author = models.ForeignKey(User, related_name="author_solution")
     status = models.IntegerField(choices=SOLUTION_STATUS_CHOICE, default=-1)
@@ -88,7 +88,7 @@ class Ensemble(models.Model):
 class Performance(models.Model):
     user = models.ForeignKey(User)
     usergroup = models.ForeignKey(UserGroup)
-    solution = models.ForeignKey('Solution', null=True)
+    solution = models.ForeignKey('Solution', null=True, blank=True)
     results = models.BinaryField(null=True, blank=True)
     ABTest = models.IntegerField(default=1)
     Date = models.DateTimeField()
@@ -101,10 +101,10 @@ class Notebook(models.Model):
     """
     solution = models.ManyToManyField('Solution', blank=True)
     category = models.ForeignKey(Category, default=0)
-    parent = models.ForeignKey('Notebook', null=True)
+    parent = models.ForeignKey('Notebook', null=True, blank=True)
     type = models.ForeignKey(NotebookType, default=0)
-    jupyternotebook_ID = models.IntegerField()
-    graphdatabase_ID = models.IntegerField()
+    jupyternotebook_ID = models.IntegerField(default=0)
+    graphdatabase_ID = models.IntegerField(default=0)
     performance = models.ManyToManyField('Performance', blank=True)
     price = models.ManyToManyField('Price', blank=True)
     accessparameters = models.CharField(max_length=255, null=True)
@@ -113,7 +113,7 @@ class Notebook(models.Model):
     datafields = models.CharField(max_length=255)
     language = models.CharField(max_length=255)
     author = models.ManyToManyField(User)
-    status = models.IntegerField()
+    status = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -172,7 +172,6 @@ class Price(models.Model):
     price = models.FloatField(null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-
 
 
 
