@@ -15,7 +15,6 @@ router.register(r'prices', views.PriceViewSet,base_name='prices')
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
-    # url(r'^solution/(?P<pid>[0-9]+)/$', views.SolutionDetailView.as_view()),
     url(r'^solution/library/(?P<category_id>[0-9]+)/$', views.SolutionLibraryView.as_view()),
     url(r'^categories/(?P<id>[0-9]+)/notebooks/$', views.CategoryNotebookView.as_view()),
     url(r'^categories/(?P<id>[0-9]+)/datasets/$', views.CategoryDatasetView.as_view()),
