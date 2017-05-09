@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 
-from solutions.models import Solution, Category, Performance, Notebook
-from api.serializers import SolutionSerializer, NotebookSerializer, CategorySerializer
+from solutions.models import Solution, Category, Performance, Notebook, DataSet, Price
+from api.serializers import SolutionSerializer, NotebookSerializer, CategorySerializer, DatasetSerializer, PriceSerializer
 from rest_framework.renderers import JSONRenderer
 
 
@@ -20,6 +20,13 @@ class SolutionViewSet(viewsets.ModelViewSet):
         serializer = SolutionSerializer(solutions, many=True)
         data = JSONRenderer().render(serializer.data)
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = SolutionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SolutionDetailView(APIView):
@@ -84,17 +91,60 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CategoryDetailView(APIView):
+class CategoryNotebookView(APIView):
     def get_notebook_objects(self, pk):
         try:
-            return Notebook.objects.filter(pk=pk)
+            return Notebook.objects.filter(category__id=pk)
         except Notebook.DoesNotExist:
             raise Http404
 
     def get(self, request, id, format=None):
-        print "sdfsd"
-        print id
         notebooks = self.get_notebook_objects(id)
-        print notebooks
-        serializer = NotebookSerializer(notebooks)
+        
+        serializer = NotebookSerializer(notebooks, many=True)
         return Response(serializer.data)
+
+
+class CategoryDatasetView(APIView):
+    def get_notebook_objects(self, pk):
+        try:
+            return DataSet.objects.filter(category__id=pk)
+        except DataSet.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        datasets = self.get_notebook_objects(id)
+        
+        serializer = DatasetSerializer(datasets, many=True)
+        return Response(serializer.data)
+
+
+class CategorySolutionView(APIView):
+    def get_objects(self, id):
+        try:
+            return Solution.objects.filter(category__id=id)
+        except Solution.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        solutions = self.get_objects(id)
+        serializer = SolutionSerializer(solutions, many=True)
+        return Response(serializer.data)
+
+
+class PriceViewSet(viewsets.ModelViewSet):
+    queryset = Price.objects.all()
+    serializer_class = PriceSerializer
+    
+    def list(self, request):
+        prices = Price.objects.all()
+        serializer = PriceSerializer(prices, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = PriceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

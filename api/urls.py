@@ -4,9 +4,10 @@ from . import views
 
 
 router = routers.DefaultRouter()
-router.register(r'solutions', views.SolutionViewSet, base_name='solutions')
+router.register(r'solution', views.SolutionViewSet, base_name='solutions')
 router.register(r'notebooks', views.NotebookViewSet, base_name='notebooks')
 router.register(r'categories', views.CategoryViewSet, base_name='categories')
+router.register(r'prices', views.PriceViewSet,base_name='prices')
 
 # router.register(r'groups', views.GroupViewSet)
 
@@ -14,7 +15,9 @@ router.register(r'categories', views.CategoryViewSet, base_name='categories')
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^solutions/(?P<pid>[0-9]+)/$', views.SolutionDetailView.as_view()),
+    # url(r'^solution/(?P<pid>[0-9]+)/$', views.SolutionDetailView.as_view()),
     url(r'^solution/library/(?P<category_id>[0-9]+)/$', views.SolutionLibraryView.as_view()),
-    url(r'^categories/(?P<id>[0-9]+)/notebooks/$', views.CategoryDetailView.as_view()),
+    url(r'^categories/(?P<id>[0-9]+)/notebooks/$', views.CategoryNotebookView.as_view()),
+    url(r'^categories/(?P<id>[0-9]+)/datasets/$', views.CategoryDatasetView.as_view()),
+    url(r'^categories/(?P<id>[0-9]+)/solutions/$', views.CategorySolutionView.as_view()),
 ]

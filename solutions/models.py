@@ -53,9 +53,10 @@ class Solution(models.Model):
     user = models.ForeignKey(User, default=0, related_name="user_solution")
     usergroup_ID = models.ForeignKey(UserGroup)
     type = models.ForeignKey(SolutionType, default=0)
+    notebook = models.ForeignKey('Notebook', default=0, null=True, blank=True, related_name='solutions_notebook')
     library_id = models.IntegerField(null=True, blank=True)
-    solutionparent = models.ForeignKey('Solution', default=None, null=True, blank=True)
-    price = models.ManyToManyField("Price", blank=True)
+    parent = models.ForeignKey('Solution', default=None, null=True, blank=True)
+    price = models.ForeignKey("Price", blank=True, null=True, related_name='solutions_price')
     workflow_id = models.IntegerField(null=True)
     tags = models.CharField(max_length=255, null=True)
     name = models.CharField(max_length=255)
@@ -65,17 +66,20 @@ class Solution(models.Model):
     score = models.IntegerField(default=0)
     ensemble = models.ForeignKey('Ensemble', null=True, blank=True)
     metaensemble = models.ForeignKey('MetaEnsemble', null=True, blank=True)
-    dataset = models.ManyToManyField('Dataset', blank=True)
+    dataset = models.ForeignKey('Dataset', blank=True, null=True, related_name='solutions_dataset')
     author = models.ForeignKey(User, related_name="author_solution")
     status = models.IntegerField(choices=SOLUTION_STATUS_CHOICE, default=-1)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    def get_notebooks(self):
+        return "\n".join([p.notebook for p in self.notebook.all()])
 
 
 class Ensemble(models.Model):
     user = models.ForeignKey(User)
     usergroup = models.ForeignKey(UserGroup)
+    parent = models.ForeignKey('Ensemble', null=True, blank=True)
     foreign_id = models.IntegerField(null=True, blank=True)
     foreign_type = models.IntegerField(choices=ENSEMBLE_FOREIGN_TYPE, default=0)
     performance = models.ForeignKey('Performance', default=0, null=True)
@@ -89,8 +93,14 @@ class Performance(models.Model):
     user = models.ForeignKey(User)
     usergroup = models.ForeignKey(UserGroup)
     solution = models.ForeignKey('Solution', null=True, blank=True)
+    Notebook = models.ForeignKey('Notebook', null=True, blank=True, related_name='performances_notebook')
     results = models.BinaryField(null=True, blank=True)
     ABTest = models.IntegerField(default=1)
+    PredictionAccuracyScore = models.IntegerField(default=0)
+    ChangefromPrevious = models.IntegerField(default=0)
+    PredictedImpact = models.IntegerField(default=0)
+    RecordsinFile = models.IntegerField(default=0)
+    DateRun = models.DateTimeField(null=True, blank=True)   
     Date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
@@ -99,34 +109,23 @@ class Performance(models.Model):
 class Notebook(models.Model):
     """
     """
-    solution = models.ManyToManyField('Solution', blank=True)
+    solution = models.ForeignKey('Solution', blank=True, null=True, related_name='notebooks_solution')
     category = models.ForeignKey(Category, default=0)
     parent = models.ForeignKey('Notebook', null=True, blank=True, default=None)
     type = models.ForeignKey(NotebookType, default=0)
     jupyternotebook_ID = models.IntegerField(default=0)
     graphdatabase_ID = models.IntegerField(default=0)
-    performance = models.ManyToManyField('Performance', blank=True)
-    price = models.ManyToManyField('Price', blank=True)
+    performance = models.ForeignKey('Performance', blank=True, null=True, related_name='notebooks_performance')
+    price = models.ForeignKey('Price', blank=True, null=True, related_name='notebooks_price')
     accessparameters = models.CharField(max_length=255, null=True)
     description = models.CharField(max_length=255)
     datasource  = models.CharField(max_length=255)
     datafields = models.CharField(max_length=255)
     language = models.CharField(max_length=255)
-    author = models.ManyToManyField(User)
+    author = models.ForeignKey(User, default=None)
     status = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-
-
-# class SolutionLibrary(models.Model):
-#     user = models.ForeignKey(User)
-#     customsolution = models.ForeignKey('CustomSolution')
-#     usergroup_ID = models.ForeignKey(User)
-#     foreign_id = models.IntegerField()
-#     foreign_type = models.IntegerField(choices=LIBRARY_CHOICE, default=0)
-
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now_add=True)
 
 
 class MetaEnsemble(models.Model):
@@ -142,10 +141,10 @@ class MetaEnsemble(models.Model):
 
 class DataSet(models.Model):
     user = models.ForeignKey(User, related_name="user_dataset")
-    # solution = models.ForeignKey("Solution")
+    solution = models.ForeignKey('Solution', null=True, blank=True, related_name='datasets_solution')
     category = models.ForeignKey(Category)
     type = models.IntegerField(default=0)
-    price = models.ManyToManyField("Price", blank=True)
+    price = models.ForeignKey("Price", blank=True, null=True, related_name='datasets_price')
     accessparameters = models.CharField(max_length=255, null=True, blank=True)
     rating = models.IntegerField(default=0)
     description = models.CharField(max_length=255)
@@ -156,10 +155,10 @@ class DataSet(models.Model):
 
 
 class DataField(models.Model):
-    user = models.ForeignKey(User, null=True, blank=True, related_name='user_datafield')
+    user = models.ForeignKey(User, null=True, blank=True, related_name='user_datafields')
     solution = models.ForeignKey('Solution', null=True, blank=True)
-    dataset = models.ForeignKey('DataSet', default=0)
-    price = models.ManyToManyField('Price', blank=True)
+    dataset = models.ForeignKey('DataSet', default=0, null=True, blank=True)
+    price = models.ForeignKey('Price', blank=True, null=True, related_name='prices_datafield')
     accessparameters = models.CharField(max_length=255, null=True, blank=True, default=None)
     description = models.CharField(max_length=255)
     datatype = models.CharField(max_length=255)
@@ -170,7 +169,10 @@ class DataField(models.Model):
 
 class Price(models.Model):
     user = models.ForeignKey(User)
-    # datafield = models.ForeignKey(DataField)
+    solution = models.ForeignKey('Solution', null=True, blank=True, related_name='prices_solution')
+    notebook = models.ForeignKey('Notebook', null=True, blank=True, related_name='prices_notebook')
+    datafield = models.ForeignKey('DataField', null=True, blank=True, related_name='prices_datafield')
+    dataset = models.ForeignKey('DataSet', null=True, blank=True, related_name='prices_dataset')
     price = models.FloatField(null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
