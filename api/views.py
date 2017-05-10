@@ -5,8 +5,10 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 
 from solutions.models import Solution, Category, Performance, Notebook, DataSet, Price
-from api.serializers import SolutionSerializer, NotebookSerializer, CategorySerializer, DatasetSerializer, PriceSerializer
+from api.serializers import SolutionSerializer, NotebookSerializer
+from api.serializers import CategorySerializer, DatasetSerializer, PriceSerializer, PerformanceSerializer, AnomalySerializer
 from rest_framework.renderers import JSONRenderer
+import json
 
 
 # Create your views here.
@@ -148,3 +150,79 @@ class PriceViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PerformanceViewSet(viewsets.ModelViewSet):
+    queryset = Performance.objects.all()
+    serializer_class = PerformanceSerializer
+
+    def list(self, request):
+        performances = Performance.objects.all()
+        serializer = PerformanceSerializer(performances, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+
+class PerformanceNotebookView(APIView):
+    def get_objects(self, notebook_id, user_id):
+        try:
+            return Performance.objects.filter(Notebook__id=notebook_id).filter(user__id=user_id)
+        except Performance.DoesNotExist:
+            raise Http404
+
+    def get(self, request, notebook_id, user_id, format=None):
+        # notebooks = self.get_objects(notebook_id, user_id)
+        datares = self.get_objects(notebook_id, user_id)
+        
+        serializer = PerformanceSerializer(datares, many=True)
+        performance_lists = JSONRenderer().render(serializer.data)
+
+        notebooks = []
+        performance_lists = json.loads(performance_lists)
+        for performance in performance_lists:
+            print performance
+            notebooks.append(performance['Notebook'])
+
+        return Response(notebooks)
+
+
+class PerformanceEnsembleView(APIView):
+    def get_objects(self, ensemble_id, user_id):
+        try:
+            return Performance.objects.filter(ensemble__id=notebook_id).filter(user__id=user_id)
+        except Performance.DoesNotExist:
+            raise Http404
+
+    def get(self, request, notebook_id, user_id, format=None):
+        notebooks_list = self.get_objects(notebook_id, user_id)
+        performance_lists = JSONRenderer().render(serializer.data)
+
+        notebooks = []
+        performance_lists = json.loads(performance_lists)
+        for performance in performance_lists:
+            print performance
+            notebooks.append(performance['Notebook'])
+
+        return Response(notebooks)
+
+
+class AnomalyView(APIView):
+    def get_object(self, id):
+        try:
+            return Performance.objects.get(pk=id)
+        except Performance.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        performance = self.get_object(id)
+
+        serializer = AnomalySerializer(performance)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = AnomalySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

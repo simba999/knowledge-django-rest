@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from api.models import Category
-from solutions.models import Solution, Notebook, DataSet, Price
+from solutions.models import Solution, Notebook, DataSet, Price, Performance
 
 
 class SolutionSerializer(serializers.ModelSerializer):
@@ -39,4 +39,17 @@ class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Price
         fields = ('id', 'user', 'solution', 'notebook', 'datafield', 'dataset', 'price', 'created_at', 'updated_at')
+
+
+class PerformanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Performance
+        fields = ('id', 'user', 'usergroup', 'solution', 'notebook', 'results', 'ABTest', 'Date', 'created_at', 'updated_at')
+        depth = 1
+
+
+class AnomalySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Performance
+        fields = ('id', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun')   
 
