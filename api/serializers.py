@@ -44,12 +44,24 @@ class PriceSerializer(serializers.ModelSerializer):
 class PerformanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Performance
-        fields = ('id', 'user', 'usergroup', 'solution', 'notebook', 'results', 'ABTest', 'Date', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'usergroup', 'solution', 'notebook', 'ensemble', 'results', 'ABTest', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun', 'Date', 'created_at', 'updated_at')
         depth = 1
+
+
 
 
 class AnomalySerializer(serializers.ModelSerializer):
     class Meta:
         model = Performance
-        fields = ('id', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun')   
+        # exclude = ('user', 'usergroup', 'solution', 'notebook', 'results', 'ABTest', 'Date')
+        fields = ('id', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun')
 
+
+# class AnomalySerializer(serializers.Serializer):
+#     fields = ('id', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun')   
+#     id = serializers.IntegerField(read_only=True)
+#     PredictionAccuracyScore = serializers.IntegerField(default=0)
+#     ChangefromPrevious = serializers.IntegerField(default=0)
+#     PredictedImpact = serializers.IntegerField(default=0)
+#     RecordsinFile = serializers.IntegerField(default=0)
+#     DateRun = serializers.DataTimeField(required=False, alllow_blank=True)

@@ -101,8 +101,9 @@ class Performance(models.Model):
     ChangefromPrevious = models.IntegerField(default=0)
     PredictedImpact = models.IntegerField(default=0)
     RecordsinFile = models.IntegerField(default=0)
-    DateRun = models.DateTimeField(null=True, blank=True)   
-    Date = models.DateTimeField()
+    DateRun = models.DateTimeField(null=True, blank=True)
+    PerformanceResult = models.ForeignKey('PerformanceResult', null=True, blank=True)   
+    Date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -178,5 +179,9 @@ class Price(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+
+class PerformanceResult(models.Model):
+    logfile = models.CharField(max_length=255, null=True, blank=True)
+    outcome = models.CharField(max_length=255, null=True, blank=True)
 
 
