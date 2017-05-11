@@ -7,8 +7,8 @@ from rest_framework import exceptions
 from rest_framework import permissions
 from rest_framework.decorators import api_view
 from solutions.models import Solution, Category, Performance, Notebook, DataSet, Price
-from api.serializers import SolutionSerializer, NotebookSerializer
-from api.serializers import CategorySerializer, DatasetSerializer, PriceSerializer, PerformanceSerializer, AnomalySerializer
+from api.serializers import SolutionSerializer, NotebookSerializer, SolutionAllSerializer, AnomalySerializer
+from api.serializers import CategorySerializer, DatasetSerializer, PriceSerializer, PerformanceSerializer
 from rest_framework.renderers import JSONRenderer
 import json
 
@@ -104,11 +104,11 @@ class CustomSolutionViewByGroup(APIView):
         return Response(serializer.data)
 
 
-#GET /solution/customsolution/parent/{id}
+#GET /solution/customsolution/parent/{id} //mode
 class CustomSolutionViewByParent(APIView):
     def get_object(self, id):
         try:
-            return Solution.objects.filter(parent=id, type__name="CustomSolution")
+            return Solution.objects.filter(parent__pk=id, type__name="CustomSolution")
         except Solution.DoesNotExist:
             raise Http404
 
@@ -118,6 +118,93 @@ class CustomSolutionViewByParent(APIView):
         print solution
         serializer = SolutionSerializer(solution, many=True)
         data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+
+#GET return solution object by solution id
+class EnsembleView(APIView):
+    def get_object(self, id):
+        try:
+            return Solution.objects.filter(parent__pk=id, type__name="CustomSolution")
+        except Solution.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        solution = self.get_object(id)
+        serializer = SolutionSerializer(solution, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+
+class SolutionCategoryView(APIView):
+    def get_object(self, id):
+        try:
+            return Solution.objects.filter(category=id)
+        except Solution.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        solution = self.get_object(id)
+        serializer = SolutionSerializer(solution, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+
+class SolutionTypeView(APIView):
+    def get_object(self, id):
+        try:
+            return Solution.objects.filter(type=id)
+        except Solution.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        solution = self.get_object(id)
+        serializer = SolutionSerializer(solution, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+
+class SolutionAllView(APIView):
+    def get_object(self, id):
+        try:
+            return Solution.objects.filter(pk=id)
+        except Solution.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        solution = self.get_object(id)
+        serializer = SolutionAllSerializer(solution, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+
+class ChildSolutionView(APIView):
+    def get_object(self, id):
+        try:
+            return Solution.objects.filter(parent=id)
+        except Solution.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        solution = self.get_object(id)
+        serializer = SolutionAllSerializer(solution, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+
+class ParentSolutionView(APIView):
+    def get_object(self, id):
+        try:
+            parent_id = Solution.objects.get(pk=id)
+            print Solution.objects.get(pk=id)
+            return Solution.objects.get(pk=id)
+        except Solution.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        solution = self.get_object(id)
+        serializer = SolutionAllSerializer(solution)
+        data = JSONRenderer().render(serializer.data, many=True)
         return Response(serializer.data)
 
 
@@ -138,6 +225,8 @@ class CustomSolutionViewByParent(APIView):
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+# mode
 @api_view(['POST'])
 def CustomSolutionAddView(request):
     print "TYPE: " + request.data

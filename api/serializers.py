@@ -12,6 +12,15 @@ class SolutionSerializer(serializers.ModelSerializer):
         # depth = 1
 
 
+class SolutionAllSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Solution
+        fields = ('category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library_id', 'price', 'workflow_id', 
+                'tags', 'name', 'title', 'description', 'rating', 'score', 'ensemble', 'metaensemble', 'dataset',
+                'author', 'status', 'created_at', 'updated_at')
+        depth = 1
+
+
 class NotebookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notebook
