@@ -2,13 +2,15 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from . import views
 
-
 router = routers.DefaultRouter()
 router.register(r'solution', views.SolutionViewSet, base_name='solutions')
 router.register(r'notebooks', views.NotebookViewSet, base_name='notebooks')
 router.register(r'categories', views.CategoryViewSet, base_name='categories')
 router.register(r'prices', views.PriceViewSet, base_name='prices')
+router.register(r'datasets', views.DatasetViewSet, base_name='datasets')
+router.register(r'users', views.UserViewSet, base_name='users')
 router.register(r'performances', views.PerformanceViewSet, base_name='performance')
+router.register(r'ensembles', views.EnsembleViewSet, base_name='ensembles')
 
 # router.register(r'groups', views.GroupViewSet)
 
@@ -22,15 +24,15 @@ urlpatterns = [
     # url(r'^solution/customsolution/$', views.CustomSolutionAddView.as_view()),
     url(r'^solution/customsolution/$', views.CustomSolutionAddView),
     url(r'^solution/customsolution/parent/(?P<parent_id>[0-9]+)/$', views.CustomSolutionViewByParent.as_view()),
-    # url(r'^solution/ensembles/(?P<id>[0-9]+)/$', views.EnsembleView.as_view()),
-    # url(r'^solution/dataset/(?P<id>[0-9]+)/$', views.DataSetView.as_view()),
-    # url(r'^solution/metaensembles/(?P<id>[0-9]+)/$', views.MetaEnsembles.as_view()),
+    url(r'^solution/ensembles/(?P<id>[0-9]+)/$', views.SolutionEnsembleView.as_view()),
+    url(r'^solution/dataset/(?P<id>[0-9]+)/$', views.SolutionDataSetView.as_view()),
+    url(r'^solution/metaensembles/(?P<id>[0-9]+)/$', views.SolutionMetaEnsemblesView.as_view()),
     url(r'^solution/category/(?P<id>[0-9]+)/$', views.SolutionCategoryView.as_view()),
     url(r'^solution/type/(?P<id>[0-9]+)/$', views.SolutionTypeView.as_view()),
     url(r'^solution/all/(?P<id>[0-9]+)/$', views.SolutionAllView.as_view()),
     url(r'^solution/(?P<id>[0-9]+)/childsolution/$', views.ChildSolutionView.as_view()),
-    # url(r'^solution/(?P<id>[0-9]+)/parentsolution/$', views.ParentSolutionView.as_view()),
-    # url(r'^solution/ensembles/(?P<id>[0-9]+)/$', views.EnsembleView.as_view()),
+    url(r'^solution/(?P<id>[0-9]+)/parentsolution/$', views.ParentSolutionView.as_view()),
+    url(r'^search/solution/$', views.SearchSolutionView.as_view()),
     url(r'^categories/(?P<id>[0-9]+)/notebooks/$', views.CategoryNotebookView.as_view()),
     url(r'^categories/(?P<id>[0-9]+)/datasets/$', views.CategoryDatasetView.as_view()),
     url(r'^categories/(?P<id>[0-9]+)/solutions/$', views.CategorySolutionView.as_view()),
@@ -38,7 +40,9 @@ urlpatterns = [
     url(r'^performance/(?P<ensemble_id>[0-9]+)/(?P<user_id>[0-9]+)/ensembles/$', views.PerformanceEnsembleView.as_view()),
     url(r'^performance/(?P<solution_id>[0-9]+)/(?P<user_id>[0-9]+)/solutions/$', views.PerformanceSolutionView.as_view()),
     url(r'^anomaly/(?P<id>[0-9]+)/$', views.AnomalyView.as_view()),
-    # url(r'^performance/(?P<id>[0-9]+)/solutions/$', views.CategorySolutionView2.as_view()),
-    # url(r'^performance/solution/$', views.CategorySolutionView3.as_view()),
-
+    url(r'^users/(?P<user_id>[0-9]+)/(?P<type>\w+)$', views.UserViewTypesByUser.as_view()),
+    url(r'^notebooks/(?P<notebook_id>[0-9]+)/(?P<type>\w+)$', views.NotebookViewTypesById.as_view()),
+    url(r'^search/notebooks/$', views.SearchNotebookView.as_view()),
+    url(r'^search/datasets/$', views.SearchDatasetView.as_view()),
+    url(r'^search/ensembles/$', views.SearchEnsembleView.as_view()),
 ]

@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from api.models import Category
-from solutions.models import Solution, Notebook, DataSet, Price, Performance
+from api.models import Category, User
+from solutions.models import Solution, Notebook, DataSet, Price, Performance, MetaEnsemble, Ensemble
 
 
 class SolutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solution
-        fields = ('category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library_id', 'price', 'workflow_id', 
+        fields = ('id', 'category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library_id', 'price', 'workflow_id', 
                 'tags', 'name', 'title', 'description', 'rating', 'score', 'ensemble', 'metaensemble', 'dataset',
                 'author', 'status', 'created_at', 'updated_at')
         # depth = 1
@@ -27,7 +27,15 @@ class NotebookSerializer(serializers.ModelSerializer):
         fields = ('category', 'solution', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
             'price', 'accessparameters', 'description', 'datasource', 'datafields', 'language', 'author', 'status',
             'created_at', 'updated_at')
-        # depth = 1
+
+
+class NotebookAllSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notebook
+        fields = ('category', 'solution', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
+            'price', 'accessparameters', 'description', 'datasource', 'datafields', 'language', 'author', 'status',
+            'created_at', 'updated_at')
+        # depth = 1/
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -57,14 +65,31 @@ class PerformanceSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
-
 class AnomalySerializer(serializers.ModelSerializer):
     class Meta:
         model = Performance
-        # exclude = ('user', 'usergroup', 'solution', 'notebook', 'results', 'ABTest', 'Date')
         fields = ('id', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun')
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'parent_id', 'group', 'tags', 'name', 'email', 'password', 'remember_token', 'image', 'profile_name',
+                'profile_description', 'api_paypal', 'api_payment', 'commissions', 'commission_rate', 'commission_total', 'commission_monthtodata', 'number_transaction', 'trend',
+                'potential_place', 'potential_earning', 'total_commission', 'total_purchase', 'proj_earning_to_date', 'proj_earning_overall',
+                'proj_place_to_date', 'proj_place_overall', 'noteworthy', 'redeem_state', 'datascientist_reg', 'created_at', 'updated_at')
+
+
+class MetaEnsembleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MetaEnsemble
+        fields = ('id', 'collection_id', 'foreign_id', 'foreign_type', 'name', 'status', 'created_at', 'updated_at')
+
+
+class EnsembleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ensemble
+        fields = ('id', 'user', 'usergroup', 'parent', 'foreign_id', 'foreign_type', 'performance', 'name', 'status', 'created_at', 'updated_at')
 
 # class AnomalySerializer(serializers.Serializer):
 #     fields = ('id', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun')   
