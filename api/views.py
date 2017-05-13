@@ -23,6 +23,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from django.conf import settings
+import pdb
 
 SOLUTION_TYPE = {
     'Solution': 'Solution',
@@ -74,30 +75,29 @@ def get_solutionlibrary_by_user(user_id):
     except Solution.DoesNotExist:
         raise Http404
 
-@receiver(post_save, sender=User)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        Token.objects.create(user=instance)
 
-# Authentication
 # @csrf_exempt
 class AuthenticationView(APIView):
+    def get_object(self, username):
+        try:
+            return User.objects.get(name=username)
+        except User.DoesNotExist:
+            raise Http404 
+
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
         if not username or not password:
             return Response("Please insert username or password", status=status.HTTP_204_NO_CONTENT)
-        try:
-            user = User.objects.values('password').get(name=username)
-            pwd_valid = check_password(password, user['password'])
-            if pwd_valid:
-                user.remember_token == uuid.uuid5()
-                user.save()
-                return Response("success", status=status.HTTP_200_OK)
-            else:
-                return Response("Authentication Error", status=status.HTTP_401_UNAUTHORIZED)
-        except:
-            raise exceptions.NotAuthenticated('Password or Username is incorrect', status=status.HTTP_400_BAD_REQUEST)
+        
+        user = self.get_object(username)
+        pwd_valid = check_password(password, user.password)
+        if pwd_valid:
+            user.remember_token = uuid.uuid4()
+            user.save()
+            return Response({'token': user.remember_token}, status=status.HTTP_200_OK)
+        else:
+            return Response("Authentication Error", status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Create your views here.
@@ -389,11 +389,8 @@ class FilterSolutionView(APIView):
 # mode
 @api_view(['POST'])
 def CustomSolutionAddView(request):
-    print "TYPE: " + request.data
     type = SolutionType.objects.filter(name='CustomSolution')
-    print "TYPE: " + request.data
     request.data['type'] = type
-    print "New Type: " + request.data
     serializer = SolutionSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -622,6 +619,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         users = User.objects.all()
+        for user in users:
+            user.password = make_password(user.password)
+            user.save()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
@@ -633,6 +633,7 @@ class UserViewSet(viewsets.ModelViewSet):
             raise exceptions.NotAuthenticated('Token is missed')
 
         if token == self.get_token():
+            request.data['password'] = make_password(password)
             serializer = UserSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()

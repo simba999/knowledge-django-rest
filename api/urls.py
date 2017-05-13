@@ -1,6 +1,7 @@
 from django.conf.urls import url, include
 from rest_framework import routers
 from rest_framework.authtoken import views as auth_views
+from rest_framework.authtoken import views as rest_framework_views
 from . import views
 
 router = routers.DefaultRouter()
@@ -19,7 +20,8 @@ router.register(r'ensembles', views.EnsembleViewSet, base_name='ensembles')
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^api-token/$', auth_views.obtain_auth_token),
+    # url(r'^get_auth_token/$', rest_framework_views.obtain_auth_token, name='get_auth_token'),
+    # url(r'^api-token/$', auth_views.obtain_auth_token),
     url(r'^auth/$', views.AuthenticationView.as_view()),
     url(r'^solution/library/(?P<category_id>[0-9]+)/$', views.SolutionLibraryView.as_view()),
     url(r'^solution/library/$', views.SolutionLibraryAddView.as_view()),
