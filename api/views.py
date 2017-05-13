@@ -41,12 +41,14 @@ METAENSEMBLE_TYPE = {
     'Solution': 1,
 }
 
-FILTER_TYPE = {
+OPERATOR_TYPE = {
     '=': '',
     '<': '__lt',
     '>': '__gt',
     'like': '__icontains'
 }
+
+OPERATOR_LIST = ['=', '<', '>', 'like']
 
 def get_token(request, pk):
     try:
@@ -333,41 +335,6 @@ class SearchSolutionView(APIView):
             return Response("error", status=status.HTTP_401_UNAUTHORIZED)
 
 
-class FilterSolutionView(APIView):
-    def get_token(self):
-        return '123'
-
-    def  post(self, request, format=None):
-        token = ''
-        value = request.data['value']
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
-
-        try:
-            filter_name = request.data['filter']
-            operator = request.data['operator']
-        except:
-            raise exceptions.NotAuthenticated('filter or operator is missed')
-
-        query = Q()
-        query_name = filter_name + FILTER_TYPE[operator]
-        if token == self.get_token():
-            query |= Q(query_name=value)
-            
-            solutions = Solution.objects.all()
-            try:     
-                solutions = solutions.filter(query)
-            except Solution.DoesNotExist:
-                raise Http404
-
-            serializer = SolutionAllSerializer(solutions, many=True)
-            return Response(serializer.data)
-
-        else:
-            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
-
 #POST /solution/customsolution
 # class CustomSolutionAddView(APIView):
 #     def get(self, reqest):
@@ -608,6 +575,51 @@ class NotebookViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class FilterNotebookView(APIView):
+    FILTER_TYPE = ['type_id', 'ensemble_id', 'metaensemble_id', 'solutioncategory_id', 'user_id']   
+
+    def get_token(self):
+        return '123'
+
+    def post(self, request):
+        token = ''
+        value = ''
+        try:
+            token = request.META['HTTP_TOKEN']
+        except:
+            raise exceptions.NotAuthenticated('Token is missed')
+
+        try:
+            value = request.data['value']
+        except:
+            return Response("value error")
+
+        try:
+            filter_name = request.data.get('filter')
+            operator = request.data.get('operator')
+        except:
+            return Response("filter or operator error")
+
+        if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
+            return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
+
+        if token == self.get_token():
+            raw_query = 'SELECT * FROM solutions_notebook WHERE ' + filter_name + operator + value;
+            if value == '':
+                notebooks = Notebook.objects.all()
+            else:
+                try:     
+                    notebooks = Notebook.objects.raw(raw_query)
+                except Notebook.DoesNotExist:
+                    raise Http404
+
+            serializer = NotebookSerializer(notebooks, many=True)
+            return Response(serializer.data)
+
+        else:
+            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+
+
 # User Begin
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -619,9 +631,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         users = User.objects.all()
-        for user in users:
-            user.password = make_password(user.password)
-            user.save()
+        # for user in users:
+        #     user.password = make_password(user.password)
+        #     user.save()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
@@ -758,6 +770,51 @@ class SearchDatasetView(APIView):
             return Response("error", status=status.HTTP_401_UNAUTHORIZED)
 
 
+class FilterDatasetView(APIView):
+    FILTER_TYPE = ['type_id', 'ensemble_id', 'metaensemble_id', 'solution_id', 'category_id', 'user_id']
+
+    def get_token(self):
+        return '123'
+
+    def post(self, request):
+        token = ''
+        value = ''
+        try:
+            token = request.META['HTTP_TOKEN']
+        except:
+            raise exceptions.NotAuthenticated('Token is missed')
+
+        try:
+            value = request.data['value']
+        except:
+            return Response("no value")
+
+        try:
+            filter_name = request.data.get('filter')
+            operator = request.data.get('operator')
+        except:
+            return Response("no filter or operator")
+
+        if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
+            return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
+
+        if token == self.get_token():
+            raw_query = 'SELECT * FROM solutions_dataset WHERE ' + filter_name + operator + value;
+            if value == '':
+                datasets = DataSet.objects.all()
+            else:
+                try:     
+                    datasets = DataSet.objects.raw(raw_query)
+                except Solution.DoesNotExist:
+                    raise Http404
+
+            serializer = DatasetSerializer(datasets, many=True)
+            return Response(serializer.data)
+
+        else:
+            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+
+
 class SolutionDataSetView(APIView):
     def get_object(self, id):
         try:
@@ -771,6 +828,50 @@ class SolutionDataSetView(APIView):
         data = JSONRenderer().render(serializer.data)
         return Response(serializer.data)
 
+
+class FilterSolutionView(APIView):
+    FILTER_TYPE = ['category_id', 'type_id', 'tags', 'author', 'created_at', 'updated_at']
+
+    def get_token(self):
+        return '123'
+
+    def post(self, request):
+        token = ''
+        value = ''
+        try:
+            token = request.META['HTTP_TOKEN']
+        except:
+            raise exceptions.NotAuthenticated('Token is missed')
+
+        try:
+            value = request.data['value']
+        except:
+            return Response("no value")
+
+        try:
+            filter_name = request.data.get('filter')
+            operator = request.data.get('operator')
+        except:
+            return Response("no filter or operator")
+
+        if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
+            return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
+
+        if token == self.get_token():
+            raw_query = 'SELECT * FROM solutions_solution WHERE ' + filter_name + operator + value;
+            if value == '':
+                solutions = Solution.objects.all()
+            else:
+                try:     
+                    solutions = Solution.objects.raw(raw_query)
+                except Solution.DoesNotExist:
+                    raise Http404
+
+            serializer = SolutionSerializer(solutions, many=True)
+            return Response(serializer.data)
+
+        else:
+            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
 
 # ENSEMBLE BEGIN
 class EnsembleViewSet(viewsets.ModelViewSet):
@@ -840,6 +941,51 @@ class SearchEnsembleView(APIView):
             return Response("error", status=status.HTTP_401_UNAUTHORIZED)
 
 
+class FilterEnsembleView(APIView):
+    FILTER_TYPE = ['foreign_type', 'ensemble_id', 'metaensemble_id', 'solution_id', 'user_id']
+
+    def get_token(self):
+        return '123'
+
+    def post(self, request):
+        token = ''
+        value = ''
+        try:
+            token = request.META['HTTP_TOKEN']
+        except:
+            raise exceptions.NotAuthenticated('Token is missed')
+
+        try:
+            value = request.data['value']
+        except:
+            return Response("no value")
+
+        try:
+            filter_name = request.data.get('filter')
+            operator = request.data.get('operator')
+        except:
+            return Response("no filter or operator")
+
+        if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
+            return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
+
+        if token == self.get_token():
+            raw_query = 'SELECT * FROM solutions_ensemble WHERE ' + filter_name + operator + value;
+            if value == '':
+                ensembles = Ensemble.objects.all()
+            else:
+                try:     
+                    ensembles = Ensemble.objects.raw(raw_query)
+                except Ensemble.DoesNotExist:
+                    raise Http404
+
+            serializer = DatasetSerializer(ensembles, many=True)
+            return Response(serializer.data)
+
+        else:
+            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+
+
 # METAENSEMBLE
 class SolutionMetaEnsemblesView(APIView):
     def get_object(self, id):
@@ -853,3 +999,48 @@ class SolutionMetaEnsemblesView(APIView):
         serializer = MetaEnsembleSerializer(metaensembles, many=True)
         data = JSONRenderer().render(serializer.data)
         return Response(serializer.data)
+
+
+class FilterMetaEnsembleView(APIView):
+    FILTER_TYPE = ['foreign_type', 'ensemble_id', 'metaensemble_id', 'solution_id', 'user_id']
+
+    def get_token(self):
+        return '123'
+
+    def post(self, request):
+        token = ''
+        value = ''
+        try:
+            token = request.META['HTTP_TOKEN']
+        except:
+            raise exceptions.NotAuthenticated('Token is missed')
+
+        try:
+            value = request.data['value']
+        except:
+            return Response("no value")
+
+        try:
+            filter_name = request.data.get('filter')
+            operator = request.data.get('operator')
+        except:
+            return Response("no filter or operator")
+
+        if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
+            return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
+
+        if token == self.get_token():
+            raw_query = 'SELECT * FROM solutions_metaensemble WHERE ' + filter_name + operator + value;
+            if value == '':
+                meta_ensembles = MetaEnsemble.objects.all()
+            else:
+                try:     
+                    meta_ensembles = MetaEnsemble.objects.raw(raw_query)
+                except Ensemble.DoesNotExist:
+                    raise Http404
+
+            serializer = DatasetSerializer(meta_ensembles, many=True)
+            return Response(serializer.data)
+
+        else:
+            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
