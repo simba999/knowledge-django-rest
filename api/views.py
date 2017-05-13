@@ -688,6 +688,7 @@ class UserSolutionLibraryViewById(APIView):
 
 # User end
 
+
 # NOTEBOOK BEGINS
 class NotebookViewTypesById(APIView):
     def get(self, request, id, type, format=None):
@@ -979,7 +980,7 @@ class FilterEnsembleView(APIView):
                 except Ensemble.DoesNotExist:
                     raise Http404
 
-            serializer = DatasetSerializer(ensembles, many=True)
+            serializer = EnsembleSerializer(ensembles, many=True)
             return Response(serializer.data)
 
         else:
@@ -1039,7 +1040,7 @@ class FilterMetaEnsembleView(APIView):
                 except Ensemble.DoesNotExist:
                     raise Http404
 
-            serializer = DatasetSerializer(meta_ensembles, many=True)
+            serializer = MetaEnsembleSerializer(meta_ensembles, many=True)
             return Response(serializer.data)
 
         else:

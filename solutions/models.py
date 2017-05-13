@@ -123,7 +123,6 @@ class Notebook(models.Model):
     author = models.ForeignKey(User, default=None)
     ensemble = models.ForeignKey("Ensemble", null=True, blank=True, related_name="notebooks_ensemble")
     metaensemble = models.ForeignKey("MetaEnsemble", null=True, blank=True, related_name="notebooks_metaensemble")
-    dataset = models.ForeignKey("Dataset", blank=True, null=True, related_name="notebook_dataset")
     status = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
@@ -151,6 +150,8 @@ class DataSet(models.Model):
     description = models.CharField(max_length=255)
     datafields = models.BinaryField()
     author = models.ForeignKey(User, related_name="author_dataset")
+    ensemble = models.ForeignKey("Ensemble", null=True, blank=True, related_name="datasets_ensemble")
+    metaensemble = models.ForeignKey("MetaEnsemble", null=True, blank=True, related_name="datasets_metaensemble")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
