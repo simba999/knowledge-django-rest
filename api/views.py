@@ -78,6 +78,20 @@ def get_solutionlibrary_by_user(user_id):
         raise Http404
 
 
+def get_user_by_pk(user_id):
+    try:
+        return User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        raise Http404
+
+
+def get_notebook_by_user(user_id):
+    try:
+        return Notebook.objects.filter(user=user_id)
+    except Notebook.DoesNotExist:
+        raise Http404
+
+
 # @csrf_exempt
 class AuthenticationView(APIView):
     def get_object(self, username):
@@ -91,6 +105,32 @@ class AuthenticationView(APIView):
         password = request.data.get('password')
         if not username or not password:
             return Response("Please insert username or password", status=status.HTTP_204_NO_CONTENT)
+        
+        user = self.get_object(username)
+        # print password
+        pwd_valid = check_password(password, user.password)
+        if pwd_valid:
+            user.remember_token = uuid.uuid4()
+            user.save()
+            return Response({'token': user.remember_token}, status=status.HTTP_200_OK)
+        else:
+            return Response("Authentication Error", status=status.HTTP_401_UNAUTHORIZED)
+
+
+class LoginView(APIView):
+    def get_object(self, username):
+        try:
+            return User.objects.get(name=username)
+        except User.DoesNotExist:
+            raise Http404 
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        if not username or not password:
+            return Response("Please insert username or password", status=status.HTTP_204_NO_CONTENT)
+
+
         
         user = self.get_object(username)
         pwd_valid = check_password(password, user.password)
@@ -307,7 +347,7 @@ class SearchSolutionView(APIView):
     def get_token(self):
         return '123'
 
-    def  post(self, request ,format=None):
+    def  post(self, request,format=None):
         token = ''
         term = request.data['term']
         type_id = request.data['type_id']
@@ -630,6 +670,8 @@ class UserViewSet(viewsets.ModelViewSet):
         return '123'
 
     def list(self, request):
+        print "Current User: "
+        print request.user
         users = User.objects.all()
         # for user in users:
         #     user.password = make_password(user.password)
@@ -672,6 +714,11 @@ class UserViewTypesByUser(APIView):
             serializer = SolutionSerializer(datasets, many=True)
             return Response(serializer.data)
 
+        if type == "notebooks":
+            notebooks = get_notebook_by_user(user_id)
+            serializer = NotebookSerializer(notebooks, many=True)
+            return Response(serializer.data)
+
         return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -679,34 +726,71 @@ class UserSolutionLibraryViewById(APIView):
     def post(self, request, id, format=None):
         solution_type = SolutionType.objects.filter(name=SOLUTION_TYPE['SolutionLibrary'])
         reqeust.data['type'] = solution_type
-        print "Request: ", request.data
         serializer = SolutionSerializer(data=reqeust.data)
         if serializer.is_valid:
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UsersCommissionsSetView(APIView):
+    def get_token(self):
+        return '123'
+
+    def post(self, request, user_id, type):
+        token = ''
+        try:
+            token = request.META['HTTP_TOKEN']
+            exchange = request.data['exchange']
+        except:
+            raise exceptions.NotAuthenticated('Token or exchange is missed')
+
+        if type == 'exchange':
+            if token == self.get_token():
+                user = get_user_by_pk(user_id)
+                user.exchange = exchange
+                user.save()
+                return Response('success', status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response('Token is not correct', status=status.HTTP_401_UNAUTHORIZED)
+        if type == 'pay':
+            if token == self.get_token():
+                user = get_user_by_pk(user_id)
+                user.exchange = exchange
+                user.save()
+            else:
+                return Response('Token is not correct', status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response("Request is not correct", status=status.HTTP_400_BAD_REQUEST)
+
 # User end
 
 
 # NOTEBOOK BEGINS
+# disply ensemble or metaensemble or 
 class NotebookViewTypesById(APIView):
-    def get(self, request, id, type, format=None):
+    def get_ensembles_by_id(self, id):
+        try:
+            return Ensemble.objects.filter(notebook=id)
+        except:
+            raise e
+
+    def get_metaensembles_by_id(self, id):
+        try:
+            return MetaEnsemble.objects.filter(notebook=id)
+        except:
+            raise e
+
+    def get(self, request, notebook_id, type, format=None):
         if type == "ensemble":
-            solutions = get_ensembles_by_id(id)
-            serializer = SolutionSerializer(solutions, many=True)
+            notebooks = self.get_ensembles_by_id(notebook_id)
+            serializer = EnsembleSerializer(notebooks, many=True)
             return Response(serializer.data)
         
         if type == "metaensemble":
-            datasets = get_metaensembles_by_id(id)
-            serializer = MetaEnsembleSerializer(datasets, many=True)
+            metaensemble = self.get_metaensembles_by_id(notebook_id)
+            serializer = MetaEnsembleSerializer(metaensemble, many=True)
             return Response(serializer.data)
-
-        if type == "solutionlibrary":
-            datasets = get_solutionlibrary_by_user(user_id)
-            serializer = SolutionSerializer(datasets, many=True)
-            return Response(serializer.data)
-
         return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -716,22 +800,35 @@ class SearchNotebookView(APIView):
 
     def post(self, request, format=None):
         token = ''
-        term = request.data['term']
+        term = ''
+        try:
+            term = request.data.get('term')
+        except:
+            raise Http404
+
+        try:
+            term = request.data['term']
+            type_id = request.data['type_id']
+        except:
+            raise Response("parameter is not correct")
+        # pdb.set_trace()
         try:
             token = request.META['HTTP_TOKEN']
         except:
             raise exceptions.NotAuthenticated('Token is missed')
 
-        query = Q()
         if token == self.get_token():
-            # query |= Q(name__icontains=term)
-            query |= Q(description__icontains=term)
-            
-            notebooks = Notebook.objects.all()
-            try:     
-                notebooks = notebooks.filter(query)
+            try:
+                notebooks = Notebook.objects.all()
             except Notebook.DoesNotExist:
-                raise Http404
+                return Response("no content")
+            if term is not '':
+                print 'not term'
+                query1 = Q(description__icontains=term)
+                notebooks = notebooks.filter(query1)
+
+            if type_id != None:
+                notebooks = notebooks.filter(type__id=type_id)
 
             serializer = NotebookAllSerializer(notebooks, many=True)
             return Response(serializer.data)
@@ -747,22 +844,32 @@ class SearchDatasetView(APIView):
 
     def post(self, request, format=None):
         token = ''
-        term = request.data['term']
+        term = ''
+
+        try:
+            term = request.data['term']
+            type_id = request.data['type_id']
+        except:
+            return Response("parameter is not correct")
+
         try:
             token = request.META['HTTP_TOKEN']
         except:
             raise exceptions.NotAuthenticated('Token is missed')
 
-        query = Q()
         if token == self.get_token():
-            # query |= Q(name__icontains=term)
-            query |= Q(description__icontains=term)
-            
-            datasets = DataSet.objects.all()
-            try:     
-                datasets = DataSet.objects.filter(query)
-            except Notebook.DoesNotExist:
-                raise Http404
+            try:
+                datasets = DataSet.objects.all()
+            except DataSet.DoesNotExist:
+                return Response("no model")
+
+            if term is not '':
+                print 'not term'
+                query1 = Q(description__icontains=term)
+                datasets = datasets.filter(query1)
+
+            if type_id != None:
+                datasets = datasets.filter(type=type_id)
 
             serializer = DatasetSerializer(datasets, many=True)
             return Response(serializer.data)
@@ -873,6 +980,33 @@ class FilterSolutionView(APIView):
 
         else:
             return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+
+
+class DatasetViewTypesById(APIView):
+    def get_ensembles_by_id(self, id):
+        try:
+            return Ensemble.objects.filter(dataset=id)
+        except:
+            raise e
+
+    def get_metaensembles_by_id(self, id):
+        try:
+            return MetaEnsemble.objects.filter(dataset=id)
+        except:
+            raise e
+
+    def get(self, request, dataset_id, type, format=None):
+        if type == "ensemble":
+            datasets = self.get_ensembles_by_id(dataset_id)
+            serializer = EnsembleSerializer(datasets, many=True)
+            return Response(serializer.data)
+        
+        if type == "metaensemble":
+            metaensemble = self.get_metaensembles_by_id(dataset_id)
+            serializer = MetaEnsembleSerializer(metaensemble, many=True)
+            return Response(serializer.data)
+        return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
+
 
 # ENSEMBLE BEGIN
 class EnsembleViewSet(viewsets.ModelViewSet):

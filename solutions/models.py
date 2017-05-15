@@ -79,6 +79,8 @@ class Ensemble(models.Model):
     foreign_id = models.IntegerField(null=True, blank=True)
     foreign_type = models.IntegerField(choices=ENSEMBLE_FOREIGN_TYPE, default=0)
     performance = models.ForeignKey("Performance", default=0, null=True, related_name="ensembles_performance")
+    notebook = models.ForeignKey("Notebook", null=True, blank=True, related_name="ensembles_notebook")
+    dataset = models.ForeignKey("DataSet", null=True, blank=True, related_name="ensembles_dataset")
     name = models.CharField(max_length=255)
     status = models.IntegerField(choices=ENSEMBLE_CHOICE, default=1)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -135,6 +137,8 @@ class MetaEnsemble(models.Model):
     foreign_type = models.IntegerField(choices=METAENSEMBLE_FOREIGN_TYPE, default=0)
     name = models.CharField(max_length=255)
     status = models.IntegerField(choices=METAENSEMBLE_CHOICE, default=1)
+    notebook = models.ForeignKey("Notebook", default=0, null=True, related_name="metaensembles_notebook")
+    dataset = models.ForeignKey("DataSet", default=0, null=True, related_name="metaensembles_dataset")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -183,5 +187,25 @@ class Price(models.Model):
 class PerformanceResult(models.Model):
     logfile = models.CharField(max_length=255, null=True, blank=True)
     outcome = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+
+class Commissions(models.Model):
+    user = models.ForeignKey(User, null=True, blank=True, related_name="commissions_user")
+    solution = models.ForeignKey('Solution', null=True, blank=True)
+    commissions = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    commisssion_accrued = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    commission_rate = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    product_sales = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+
+class recommendations(models.Model):
+    solution = models.ForeignKey('Solution', null=True, blank=True)
+    dataset = models.ForeignKey('DataSet', null=True, blank=True)
+    ensemble = models.ForeignKey('Ensemble', null=True, blank=True)
+    metaensemble = models.ForeignKey('MetaEnsemble', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)

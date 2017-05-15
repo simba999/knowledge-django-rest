@@ -15,7 +15,7 @@ class SolutionSerializer(serializers.ModelSerializer):
 class SolutionAllSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solution
-        fields = ('category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library_id', 'price', 'workflow_id', 
+        fields = ('id', 'category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library_id', 'price', 'workflow_id', 
                 'tags', 'name', 'title', 'description', 'rating', 'score', 'ensemble', 'metaensemble', 'dataset',
                 'author', 'status', 'created_at', 'updated_at')
         depth = 1
@@ -24,17 +24,17 @@ class SolutionAllSerializer(serializers.ModelSerializer):
 class NotebookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notebook
-        fields = ('category', 'solution', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
+        fields = ('id', 'category', 'solution', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
             'price', 'accessparameters', 'description', 'datasource', 'datafields', 'language', 'author', 'status',
-            'created_at', 'updated_at')
+            'ensemble', 'metaensemble', 'created_at', 'updated_at')
 
 
 class NotebookAllSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notebook
-        fields = ('category', 'solution', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
+        fields = ('id', 'category', 'solution', 'parent', 'type', 'jupyternotebook_ID', 'graphdatabase_ID', 'performance', 
             'price', 'accessparameters', 'description', 'datasource', 'datafields', 'language', 'author', 'status',
-            'created_at', 'updated_at')
+            'ensemble', 'metaensemble', 'created_at', 'updated_at')
         # depth = 1/
 
 
@@ -89,8 +89,13 @@ class MetaEnsembleSerializer(serializers.ModelSerializer):
 class EnsembleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ensemble
-        fields = ('id', 'user', 'usergroup', 'parent', 'foreign_id', 'foreign_type', 'performance', 'name', 'status', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'usergroup', 'parent', 'foreign_id', 'foreign_type', 'performance', 'name', 'status', 'notebook', 'created_at', 'updated_at')
 
+
+# class UserDemoSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('id', 'name', 'email')
 # class AnomalySerializer(serializers.Serializer):
 #     fields = ('id', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun')   
 #     id = serializers.IntegerField(read_only=True)
