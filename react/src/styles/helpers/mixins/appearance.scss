@@ -1,0 +1,18 @@
+@mixin appearance($value) {
+  -webkit-appearance: $value;
+  -moz-appearance: $value;
+}
+
+@mixin reset_input {
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+
+  &:active,
+  &:focus {
+    outline: none;
+  }
+
+  @include appearance(none);
+}

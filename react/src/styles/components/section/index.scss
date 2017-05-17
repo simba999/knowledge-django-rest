@@ -1,0 +1,18 @@
+.section {}
+
+.section__header {
+  margin-bottom: 20px;
+
+  border-bottom: 1px solid $color-bg-gray;
+}
+
+.section__title {
+  margin-right: auto;
+}
+
+.section__filter {
+  margin-right: 30px;
+}
+
+@import './header';
+@import './title';

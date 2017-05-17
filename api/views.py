@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import Http404
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
@@ -10,10 +9,11 @@ from rest_framework import permissions
 from rest_framework import authentication
 from rest_framework import exceptions
 from rest_framework.decorators import api_view
-from solutions.models import Solution, Category, Performance, Notebook, DataSet, Price, Ensemble, MetaEnsemble
+from solutions.models import Solution, Category, Performance, Notebook, DataSet, Price, Ensemble, MetaEnsemble, Commission
 from api.models import User
 from api.serializers import SolutionSerializer, NotebookSerializer, SolutionAllSerializer, AnomalySerializer
 from api.serializers import UserSerializer, MetaEnsembleSerializer, DatasetSerializer, NotebookAllSerializer
+from api.serializers import CommissionSerializer, AdminMemberSerializer
 from api.serializers import CategorySerializer, DatasetSerializer, PriceSerializer, PerformanceSerializer, EnsembleSerializer
 from rest_framework.renderers import JSONRenderer
 import json
@@ -23,6 +23,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from django.conf import settings
+from functools import wraps
+from authentication import ExampleAuthentication
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render
 import pdb
 
 SOLUTION_TYPE = {
@@ -49,6 +53,31 @@ OPERATOR_TYPE = {
 }
 
 OPERATOR_LIST = ['=', '<', '>', 'like']
+
+
+def login_required():
+    def login_decorator(function):
+        @wraps(function)
+        def wrapped_function(request):
+
+            # if a user is not authorized, redirect to login page
+            if 'user' not in request.session or request.session['user'] is None:
+                return redirect("/login")
+            # otherwise, go on the request
+            else:
+                return function(request)
+
+        return wrapped_function
+
+    return login_decorator
+
+
+def app(request):
+    context = {
+        'permissions': 'permissions'
+    }
+    return render(request, 'app.html', context)
+
 
 def get_token(request, pk):
     try:
@@ -85,6 +114,13 @@ def get_user_by_pk(user_id):
         raise Http404
 
 
+def get_user_by_name(username):
+    try:
+        return User.objects.get(username=username)
+    except User.DoesNotExist:
+        raise Http404
+
+
 def get_notebook_by_user(user_id):
     try:
         return Notebook.objects.filter(user=user_id)
@@ -92,35 +128,58 @@ def get_notebook_by_user(user_id):
         raise Http404
 
 
+# def authentication(username, password):
+#     print "Login View"
+#     if not username or not password:
+#         return False
+    
+#     user = get_user_by_name(username)
+#     pwd_valid = check_password(password, user.password)
+#     if pwd_valid:
+#         user.remember_token = uuid.uuid4()
+#         user.is_staff = True
+#         user.is_superuser = True
+#         user.save()
+#         return True
+#     else:
+#         return False
+
+
 # @csrf_exempt
 class AuthenticationView(APIView):
+    authentication_classes = (ExampleAuthentication,)
+    serializer_class = UserSerializer
+
     def get_object(self, username):
         try:
-            return User.objects.get(name=username)
+            return User.objects.filter(username=username)
         except User.DoesNotExist:
             raise Http404 
 
+    # @csrf_exempt
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        if not username or not password:
-            return Response("Please insert username or password", status=status.HTTP_204_NO_CONTENT)
+        # return Response("ok")
+        return Response(self.serializer_class(request.user).data)
+        # username = request.data.get('username')
+        # password = request.data.get('password')
+        # if not username or not password:
+        #     return Response("Please insert username or password", status=status.HTTP_204_NO_CONTENT)
         
-        user = self.get_object(username)
-        # print password
-        pwd_valid = check_password(password, user.password)
-        if pwd_valid:
-            user.remember_token = uuid.uuid4()
-            user.save()
-            return Response({'token': user.remember_token}, status=status.HTTP_200_OK)
-        else:
-            return Response("Authentication Error", status=status.HTTP_401_UNAUTHORIZED)
+        # user = self.get_object(username)
+        # # print password
+        # pwd_valid = authentication(username, password)
+        # if pwd_valid:
+        #     user.remember_token = uuid.uuid4()
+        #     user.save()
+        #     return Response({'token': user.remember_token}, status=status.HTTP_200_OK)
+        # else:
+        #     return Response("Authentication Error", status=status.HTTP_401_UNAUTHORIZED)
 
 
 class LoginView(APIView):
     def get_object(self, username):
         try:
-            return User.objects.get(name=username)
+            return User.objects.get(username=username)
         except User.DoesNotExist:
             raise Http404 
 
@@ -661,9 +720,11 @@ class FilterNotebookView(APIView):
 
 
 # User Begin
+# @login_required()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = AdminMemberSerializer
+    # permission_classes = (IsAuthenticated,)
     # permission_classes = (permissions.AllowAny,)
 
     def get_token(self):
@@ -1121,6 +1182,43 @@ class FilterEnsembleView(APIView):
             return Response("error", status=status.HTTP_401_UNAUTHORIZED)
 
 
+class EnsembleViewTypesById(APIView):
+    def get_datasets_by_id(self, id):
+        try:
+            return DataSet.objects.filter(ensemble=id)
+        except:
+            raise Http404
+
+    def get_solutions_by_id(self, id):
+        try:
+            return Solution.objects.filter(ensemble=id)
+        except:
+            raise Http404
+
+    def get_metaensembles_by_id(self, id):
+        try:
+            return MetaEnsemble.objects.filter(ensemble=id)
+        except:
+            raise Http404
+
+    def get(self, request, ensemble_id, type, format=None):
+        if type == "datasets":
+            datasets = self.get_datasets_by_id(ensemble_id)
+            serializer = DatasetSerializer(datasets, many=True)
+            return Response(serializer.data)
+        
+        if type == "solutions":
+            solutions = self.get_solutions_by_id(ensemble_id)
+            serializer = SolutionSerializer(solutions, many=True)
+            return Response(serializer.data)
+
+        if type == "metaensembles":
+            metaensembles = self.get_notebooks_by_id(ensemble_id)
+            serializer = NotebookSerializer(metaensembles, many=True)
+            return Response(serializer.data)
+        return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
+
+
 # METAENSEMBLE
 class SolutionMetaEnsemblesView(APIView):
     def get_object(self, id):
@@ -1179,3 +1277,32 @@ class FilterMetaEnsembleView(APIView):
 
         else:
             return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+
+
+class CommissionViewSet(viewsets.ModelViewSet):
+    queryset = Commission.objects.all()
+    serializer_class = CommissionSerializer
+
+    def get_token(self):
+        return '123'
+
+    def list(self, request):
+        commissions = Commission.objects.all()
+        serializer = CommissionSerializer(commissions, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        token = ''
+        try:
+            token = request.META['HTTP_TOKEN']
+        except:
+            raise exceptions.NotAuthenticated('Token is missed')
+
+        if token == self.get_token():
+            serializer = CommissionSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Token is wrong or expired", status=status.HTTP_401_UNAUTHORIZED)

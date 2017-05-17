@@ -13,7 +13,7 @@ router.register(r'datasets', views.DatasetViewSet, base_name='datasets')
 router.register(r'users', views.UserViewSet, base_name='users')
 router.register(r'performances', views.PerformanceViewSet, base_name='performance')
 router.register(r'ensembles', views.EnsembleViewSet, base_name='ensembles')
-
+router.register(r'commissions', views.CommissionViewSet, base_name='commissions')
 # router.register(r'groups', views.GroupViewSet)
 
 # Wire up our API using automatic URL routing.
@@ -22,7 +22,8 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     # url(r'^get_auth_token/$', rest_framework_views.obtain_auth_token, name='get_auth_token'),
     url(r'^api-token/$', auth_views.obtain_auth_token),
-    url(r'^login/$', views.LoginView.as_view()),
+    # url(r'^login/$', views.LoginView.as_view()),
+    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^auth/$', views.AuthenticationView.as_view()),
     url(r'^solution/library/(?P<category_id>[0-9]+)/$', views.SolutionLibraryView.as_view()),
     url(r'^solution/library/$', views.SolutionLibraryAddView.as_view()),
@@ -60,4 +61,5 @@ urlpatterns = [
     url(r'^search/datasets/$', views.SearchDatasetView.as_view()),
     url(r'^search/ensembles/$', views.SearchEnsembleView.as_view()),
     url(r'^datasets/(?P<dataset_id>[0-9]+)/(?P<type>\w+)$', views.DatasetViewTypesById.as_view()),
+    url(r'^ensembles/(?P<ensemble_id>[0-9]+)/(?P<type>\w+)$', views.EnsembleViewTypesById.as_view()),
 ]

@@ -1,0 +1,2 @@
+export const FLAG_TOGGLE = 'FLAG_TOGGLE';
+export const GET_SOLUTION_BUY_USER = 'GET_SOLUTION_BUY_USER'

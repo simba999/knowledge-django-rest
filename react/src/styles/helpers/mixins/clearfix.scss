@@ -1,0 +1,9 @@
+@mixin clearfix() {
+  &:after {
+    height: 0;
+    display: block;
+    clear: both;
+    content: '/0020';
+    overflow: hidden;
+  }
+}

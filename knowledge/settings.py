@@ -91,7 +91,7 @@ DATABASES = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.SessionAuthentication',
-        # 'api.views.UserAuthentication',
+        # 'api.authentication.ExampleAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -129,6 +129,11 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptPasswordHasher',
 ]
 
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
+
+# AUTH_USER_MODEL = 'api.User'
+
+LOGIN_REDIRECT_URL = '/auth/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -143,9 +148,29 @@ USE_L10N = True
 
 USE_TZ = True
 
-AUTH_MODEL_USER = 'api.models.User'
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/public/'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR,'public/'), 
+)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+         'DIRS': [
+            BASE_DIR + '/templates/',
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]

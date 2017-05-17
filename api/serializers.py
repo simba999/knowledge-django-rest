@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from api.models import Category, User
-from solutions.models import Solution, Notebook, DataSet, Price, Performance, MetaEnsemble, Ensemble
+from solutions.models import Solution, Notebook, DataSet, Price, Performance, MetaEnsemble, Ensemble, Commission
+from django.contrib.auth.models import User as AdminMember
 
 
 class SolutionSerializer(serializers.ModelSerializer):
@@ -74,10 +75,26 @@ class AnomalySerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'parent_id', 'group', 'tags', 'name', 'email', 'password', 'remember_token', 'image', 'profile_name',
+        fields = ('id', 'parent_id', 'group', 'tags', 'remember_token', 'image', 'profile_name',
                 'profile_description', 'api_paypal', 'api_payment', 'commissions', 'commission_rate', 'commission_total', 'commission_monthtodata', 'number_transaction', 'trend',
                 'potential_place', 'potential_earning', 'total_commission', 'total_purchase', 'proj_earning_to_date', 'proj_earning_overall',
-                'proj_place_to_date', 'proj_place_overall', 'noteworthy', 'redeem_state', 'datascientist_reg', 'created_at', 'updated_at')
+                'proj_place_to_date', 'proj_place_overall', 'noteworthy', 'redeem_state', 'datascientist_reg', 'is_authenticated'
+                )
+
+
+class AdminMemberSerializer(serializers.ModelSerializer):
+    users = UserSerializer()
+
+    class Meta:
+        model = AdminMember
+        fields = ('username', 'password', 'email', 'users')
+
+    def create(self, validated_data):
+        users_data = validated_data.pop('users')
+        user = AdminMember.objects.create(**validated_data)
+        for user_data in users_data:
+            User.objects.create(user=user, **user_data)
+        return user
 
 
 class MetaEnsembleSerializer(serializers.ModelSerializer):
@@ -91,6 +108,11 @@ class EnsembleSerializer(serializers.ModelSerializer):
         model = Ensemble
         fields = ('id', 'user', 'usergroup', 'parent', 'foreign_id', 'foreign_type', 'performance', 'name', 'status', 'notebook', 'created_at', 'updated_at')
 
+
+class CommissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Commission
+        fields = ('user', 'solution', 'product_sales')
 
 # class UserDemoSerializer(serializers.ModelSerializer):
 #     class Meta:

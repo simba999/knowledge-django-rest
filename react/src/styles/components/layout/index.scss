@@ -1,0 +1,21 @@
+.layout {
+  height: 100%;
+  display: flex;
+}
+
+.layout__main {
+  padding-right: 45px;
+  padding-left: 45px;
+  flex-grow: 1;
+  overflow: auto;
+  background-color: $color-bg-gray-light;
+}
+
+.layout__aside {
+  width: 250px;
+  overflow: auto;
+}
+
+.layout__header {
+  margin-bottom: 20px;
+}

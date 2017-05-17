@@ -1,0 +1,18 @@
+.header {
+  height: 75px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.header__search {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.header__user {
+  @include respond-to('medium') {
+    right: 0;
+    position: absolute;
+  }
+}

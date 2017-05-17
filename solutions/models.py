@@ -66,10 +66,20 @@ class Solution(models.Model):
     ensemble = models.ForeignKey("Ensemble", null=True, blank=True)
     metaensemble = models.ForeignKey("MetaEnsemble", null=True, blank=True)
     dataset = models.ForeignKey("Dataset", blank=True, null=True, related_name="solutions_dataset")
-    author = models.ForeignKey(User, related_name="author_solution")
+    author = models.ForeignKey('Author', blank=True, null=True, related_name="author_solution")
     status = models.IntegerField(choices=SOLUTION_STATUS_CHOICE, default=-1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    tags = models.CharField(max_length=255, default=None, null=True, blank=True)
+    timed = models.BooleanField(default=False)
+    starting_time = models.DateTimeField(null=True, blank=True, default=None)
+    ending_time = models.DateTimeField(null=True, blank=True, default=None)
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
 
 
 class Ensemble(models.Model):
@@ -85,6 +95,12 @@ class Ensemble(models.Model):
     status = models.IntegerField(choices=ENSEMBLE_CHOICE, default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
 
 
 class Performance(models.Model):
@@ -104,6 +120,12 @@ class Performance(models.Model):
     Date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
 
 
 class Notebook(models.Model):
@@ -129,6 +151,12 @@ class Notebook(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return self.description
+
+    def __str__(self):
+        return self.description
+
 
 class MetaEnsemble(models.Model):
     id = models.BigIntegerField(primary_key=True)
@@ -139,8 +167,15 @@ class MetaEnsemble(models.Model):
     status = models.IntegerField(choices=METAENSEMBLE_CHOICE, default=1)
     notebook = models.ForeignKey("Notebook", default=0, null=True, related_name="metaensembles_notebook")
     dataset = models.ForeignKey("DataSet", default=0, null=True, related_name="metaensembles_dataset")
+    ensemble = models.ForeignKey("Ensemble", default=0, null=True, related_name="metaensembles_ensemble")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
 
 
 class DataSet(models.Model):
@@ -159,6 +194,12 @@ class DataSet(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return self.description
+
+    def __str__(self):
+        return self.description
+
 
 class DataField(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, related_name="user_datafields")
@@ -172,6 +213,12 @@ class DataField(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return self.description
+
+    def __str__(self):
+        return self.description
+
 
 class Price(models.Model):
     user = models.ForeignKey(User)
@@ -183,6 +230,12 @@ class Price(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return self.pk
+
+    def __str__(self):
+        return self.pk
+
 
 class PerformanceResult(models.Model):
     logfile = models.CharField(max_length=255, null=True, blank=True)
@@ -190,8 +243,14 @@ class PerformanceResult(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return self.pk
 
-class Commissions(models.Model):
+    def __str__(self):
+        return self.pk
+
+
+class Commission(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, related_name="commissions_user")
     solution = models.ForeignKey('Solution', null=True, blank=True)
     commissions = models.DecimalField(max_digits=15, decimal_places=8, default=0)
@@ -201,6 +260,12 @@ class Commissions(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return self.pk
+
+    def __str__(self):
+        return self.pk
+
 
 class recommendations(models.Model):
     solution = models.ForeignKey('Solution', null=True, blank=True)
@@ -209,3 +274,24 @@ class recommendations(models.Model):
     metaensemble = models.ForeignKey('MetaEnsemble', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+
+class Author(models.Model):
+    author_name = models.CharField(max_length=255)
+    author_id = models.IntegerField(primary_key=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    algo_metadata = models.ForeignKey('AlgoMetaData', null=True, blank=True, default=None)
+
+    def __unicode__(self):
+        return self.author_name
+
+    def __str__(self):
+        return self.author_name
+
+
+class AlgoMetaData(models.Model):
+    accuray = models.DecimalField(max_digits=18, decimal_places=5, default=0)
+    test_points = models.DecimalField(max_digits=18, decimal_places=5, default=0)
+    train_points = models.DecimalField(max_digits=18, decimal_places=5, default=0)
+    bias = models.CharField(max_length=255, null=True, blank=True, default=None)
+    variance = models.CharField(max_length=255, null=True, blank=True, default=None)

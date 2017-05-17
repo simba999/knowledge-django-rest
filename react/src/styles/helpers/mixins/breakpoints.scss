@@ -1,0 +1,13 @@
+@mixin media($queries) {
+  @media #{inspect($queries)} {
+    @content;
+  }
+}
+
+@mixin respond-to($breakpoint) {
+  $queries: map-get($breakpoints, $breakpoint);
+
+  @include media($queries) {
+    @content;
+  }
+}

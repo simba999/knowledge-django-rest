@@ -1,0 +1,24 @@
+.contacts {
+  font-size: 1.4rem;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+.contacts__title {
+  margin-bottom: 15px;
+
+  font-weight: bold;
+  color: $color-text-gray;
+}
+
+.contacts__phone {
+  margin-bottom: 10px;
+  color: $color-text-gray-dark;
+}
+
+.contacts__email {
+  color: $color-text-blue;
+}

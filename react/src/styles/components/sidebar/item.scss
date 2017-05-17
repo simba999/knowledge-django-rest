@@ -1,0 +1,41 @@
+.sidebar-item {
+  padding: 18px $sidebar-padding--horizontal;
+  padding-left: 60px;
+  display: block;
+  transition: 0.2s;
+
+  background-repeat: no-repeat;
+  background-position: $sidebar-padding--horizontal center;
+
+  text-decoration: none;
+  color: $color-text-gray;
+
+  &:hover,
+  &--active {
+    background-color: $color-bg-orange--faded;
+    color: $color-text-gray-dark;
+  }
+
+  $icons: 'library', 'dashboard', 'solutions', 'settings';
+
+  @each $icon in $icons {
+    &--#{$icon} {
+      background-image: url("/images/icon-#{$icon}.png");
+
+      &:hover,
+      &.sidebar-item--active {
+        background-image: url("/images/icon-#{$icon}--active.png");
+      }
+    }
+
+    &:hover &--#{$icon},
+    &--active &--#{$icon} {
+      background-image: url("/images/icon-#{$icon}--active.png");
+    }
+  }
+}
+
+.sidebar-item__text {
+  font-size: 1.4rem;
+  font-weight: bold;
+}

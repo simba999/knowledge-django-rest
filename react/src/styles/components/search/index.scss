@@ -1,0 +1,26 @@
+.search {
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.search-input {
+  @include reset_input();
+  @include placeholder() {
+    color: $color-text-gray-light;
+  }
+
+  width: 300px;
+  height: 35px;
+  padding-right: 40px;
+  padding-left: 40px;
+  line-height: 35px;
+  box-sizing: border-box;
+  background-image: url('/images/icon-search.png');
+  background-repeat: no-repeat;
+  background-position: 15px 50%;
+
+  font-size: 1.4rem;
+  text-align: center;
+  color: $color-text-gray;
+}

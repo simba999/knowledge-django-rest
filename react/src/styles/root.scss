@@ -1,0 +1,39 @@
+/* Libs */
+
+@import '~reset-css/reset.css';
+
+
+/* Helpers */
+
+@import './helpers/variables/merge';
+@import './helpers/mixins/merge';
+
+
+/* Components */
+
+@import 'components/page/index';
+@import 'components/layout/index';
+@import 'components/sidebar/index';
+@import 'components/contacts/index';
+@import 'components/header/index';
+@import 'components/search/index';
+@import 'components/user_preview/index';
+@import 'components/section/index';
+@import 'components/filter/index';
+@import 'components/btn/index';
+@import 'components/grid/index';
+
+
+/* Core */
+
+html, body, #root {
+  height: 100%;
+}
+
+html {
+  font-size: $font-size-default;
+}
+
+body {
+  font-family: $font-primary;
+}
