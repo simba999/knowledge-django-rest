@@ -1,21 +1,22 @@
 import React, {
   Component,
   PropTypes
-}                       from 'react';
-import {connect} 		from 'react-redux';
-import {getSolutionLibraryByUser,fetchSolution} 	from '../../actions/flag';
-import solutionApi 					from '../../api/solutionApi';
+}                       							from 'react';
+import {connect} 									from 'react-redux';
+import {fetchSolution, fetchCategories} 	from '../../actions/solution';
+import solutionApi 									from '../../api/solutionApi';
 
 function mapStateToProps(state) {
-	console.log("DFSD: ", state.flag)
+	console.log(state);
 	return {
-		data: state.flag.data
+		data: state.solution.data
 	}
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    fetchSolution: () => dispatch(fetchSolution())
+    fetchSolution: () => dispatch(fetchSolution()),
+    fetchCategories: () => dispatch(fetchCategories()),
   };
 }
 
@@ -30,17 +31,29 @@ class SolutionComponent extends React.Component {
 	}
 
 	componentWillMount() {
-		const { getSolutionLibraryByUser, fetchSolution } = this.props;
 		this.props.fetchSolution();
-
+		this.props.fetchCategories();
 	}
 
 	componentWillReceiveProps(props) {
 		this.setState({solutions: props.data});
 	}
 
+	divideByCategory(arr) {
+		let categoryList = []
+
+		for (let item in arr) {
+			if ( categoryList.includes(item['category']) == false) {
+				let tempArr = {};
+
+				tempArr['category'] = item['category'];
+				tempArr['count'] = 1;
+				// tempArr['']
+			}
+		}
+	}
+
 	customSolution() {
-		console.log("Custom solution event call");
 		window.location = '/custom-solution';
 	}
 
@@ -89,8 +102,7 @@ class SolutionComponent extends React.Component {
 }
 
 SolutionComponent.propTypes = {
-	data: PropTypes.object,
-	getSolutionLibraryByUser: PropTypes.func.isRequired,
+	data: PropTypes.object
 }
 
 // export default SolutionComponent;

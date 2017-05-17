@@ -3,7 +3,6 @@ import React, {
   PropTypes
 }                                 from 'react';
 import {connect} from 'react-redux';
-import {getSolutionLibraryByUser} from '../actions/flag';
 import SolutionComponent from '../components/SolutionComponent';
 
 function mapStateToProps(state) {
@@ -12,7 +11,6 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getSolutionLibraryByUser: () => dispatch(getSolutionLibraryByUser()),
   };
 }
 
@@ -41,7 +39,7 @@ class SolutionLibraryPage extends React.Component {
 }
 
 SolutionLibraryPage.propTypes = {
-	getSolutionLibraryByUser: PropTypes.func.isRequired,
+
 }
 
 export default connect(
