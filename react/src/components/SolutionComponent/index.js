@@ -3,27 +3,40 @@ import React, {
   PropTypes
 }                       from 'react';
 import {connect} 		from 'react-redux';
-import {getSolutionLibraryByUser} from '../../actions/flag';
+import {getSolutionLibraryByUser,fetchSolution} 	from '../../actions/flag';
+import solutionApi 					from '../../api/solutionApi';
 
 function mapStateToProps(state) {
-	return {}
+	console.log("DFSD: ", state.flag)
+	return {
+		data: state.flag.data
+	}
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    getSolutionLibraryByUser: () => dispatch(getSolutionLibraryByUser()),
+    fetchSolution: () => dispatch(fetchSolution())
   };
 }
+
 
 class SolutionComponent extends React.Component {
 	constructor(props, context) {
 		super(props, context);
+
+		this.state = {
+			solutions: []
+		}
 	}
 
-	componentDidMount() {
-		const { getSolutionLibraryByUser } = this.props;
-		let result = getSolutionLibraryByUser();
-		console.log('Result: ', result);
+	componentWillMount() {
+		const { getSolutionLibraryByUser, fetchSolution } = this.props;
+		this.props.fetchSolution();
+
+	}
+
+	componentWillReceiveProps(props) {
+		this.setState({solutions: props.data});
 	}
 
 	customSolution() {
@@ -55,47 +68,19 @@ class SolutionComponent extends React.Component {
 				</div>
 				<div className="section__body">
 					<div className="grid">
-						<div className="solution-library">
-							<div className="solution-library__request"> 
-								<span id="request-number" > 03 </span> Requests 
-							</div>
-							<div className="solution-library__title" onClick={this.customSolution.bind(this)}> <span> PRODUCT PURCHASE </span> </div>
-							<div className="solution-library__count">
-								<div>
-									<span className="solution-library-count__number"> 12 </span> Solutions 
+						{this.state.solutions.map((solution) => 
+							<div className="solution-library">
+								<div className="solution-library__request"> 
+									<span id="request-number" > 03 </span> Requests 
+								</div>
+								<div className="solution-library__title" onClick={this.customSolution.bind(this)}> <span> { solution.name } </span> </div>
+								<div className="solution-library__count">
+									<div>
+										<span className="solution-library-count__number"> 12 </span> Solutions 
+									</div>
 								</div>
 							</div>
-						</div>
-						<div className="solution-library">
-							<div className="solution-library__request"> 
-								<span id="request-number" > 03 </span> Requests 
-							</div>
-							<div className="solution-library__title" onClick={this.customSolution.bind(this)}> <span> PRODUCT PURCHASE </span> </div>
-							<div className="solution-library__count"> 
-								<div>
-									<span className="solution-library-count__number"> 12 </span> Solutions 
-								</div>
-							</div>
-						</div>
-						<div className="solution-library">
-							<div className="solution-library__title"> <span> PRODUCT PURCHASE </span> </div>
-							<div className="solution-library__count"> 
-								<div>
-									<span className="solution-library-count__number"> 12 </span> Solutions 
-								</div>
-							</div>
-						</div>
-						<div className="solution-library">
-							<div className="solution-library__title"> <span> PRODUCT PURCHASE </span> </div>
-							<div className="solution-library__count"> Solutions </div>
-						</div>
-						<div className="solution-library">
-							<div className="solution-library__request"> 
-								<span id="request-number" > 03 </span> Requests 
-							</div>
-							<div className="solution-library__title"> <span> PRODUCT PURCHASE </span> </div>
-							<div className="solution-library__count"> Solutions </div>
-						</div>
+						)}
 					</div>
 				</div>
 			</div>
@@ -104,6 +89,7 @@ class SolutionComponent extends React.Component {
 }
 
 SolutionComponent.propTypes = {
+	data: PropTypes.object,
 	getSolutionLibraryByUser: PropTypes.func.isRequired,
 }
 

@@ -1,9 +1,8 @@
 class SolutionApi {
-  // let baseUrl = "http://localhost:8000";
-  let baseUrl = ''
   /* BEGIN MAKE REQUEST */
   static makeRequest(url, method, body) {
     // let token = localStorage.getItem(environmentConstants.TOKEN_KEY);
+    let baseUrl = "http://localhost:8000";
     let token = '123'
     return new Promise((resolve, reject) => {
       fetch(baseUrl + url, {
@@ -41,8 +40,8 @@ class SolutionApi {
     });
   }
 
-  // static getSolutionLibraryByUser() {
-  //   return makeRequest('/api/')''
-  // }
+  static getSolutions() {
+    return makeRequest('/soluion/', 'GET');
+  }
 
 }
