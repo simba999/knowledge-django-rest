@@ -3,13 +3,14 @@ import React, {
   PropTypes
 }                       							from 'react';
 import {connect} 									from 'react-redux';
-import {fetchSolution, fetchCategories} 	from '../../actions/solution';
+import {fetchSolution} 								from '../../actions/solution';
 import solutionApi 									from '../../api/solutionApi';
 
 function mapStateToProps(state) {
-	console.log(state);
+	console.log("state: ", state);
 	return {
-		data: state.solution.data
+		data: state.solution.data,
+		categories: state.solution.categories
 	}
 }
 
@@ -20,40 +21,80 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-
 class SolutionComponent extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 
 		this.state = {
-			solutions: []
+			solutions: [],
+			categories: [],
+			solutionByCategory: []
 		}
+
+		this.divideByCategory = this.divideByCategory.bind(this);
+		// this.customSolution = this.customSolution.bind(this);	
 	}
 
 	componentWillMount() {
-		this.props.fetchSolution();
-		this.props.fetchCategories();
+		const { fetchSolution, fetchCategories } = this.props;
+		
+		fetchSolution();
 	}
 
-	componentWillReceiveProps(props) {
-		this.setState({solutions: props.data});
+	componentWillReceiveProps(nextProps, prevProps) {
+		let solutionData = prevProps;
+
+		if (nextProps != prevProps && typeof nextProps.data != 'undefined') {
+			solutionData = nextProps.data;
+			this.setState({solutions: nextProps.data});
+		} 
+		
+		this.divideByCategory(solutionData);
 	}
 
-	divideByCategory(arr) {
-		let categoryList = []
+	divideByCategory(solutionArr) {
+		let categoryList = [];
+		let categoryIdList = []
 
-		for (let item in arr) {
-			if ( categoryList.includes(item['category']) == false) {
-				let tempArr = {};
+		for (let item in solutionArr) {
+			let tempArr = {};
 
-				tempArr['category'] = item['category'];
+			// check if the input item belongs to the exixting list.
+			if ( categoryIdList.includes(solutionArr[item]['category']['id']) == false ) {
+				tempArr['categoryId'] = solutionArr[item]['category']['id'];
 				tempArr['count'] = 1;
-				// tempArr['']
+				tempArr['categoryName'] = solutionArr[item]['category']['name'];
+				tempArr['id'] = solutionArr[item]['id']
+
+				if (solutionArr[item]['status'] == -1) {
+					tempArr['request'] = 1;
+				} 
+				else {
+					tempArr['request'] = 0;
+				}
+
+				categoryList.push(tempArr);
+				categoryIdList.push(tempArr['categoryId'])
+			}
+			else {
+				for (let list in categoryList ) {
+					if (solutionArr[item]['category']['id'] == categoryList[list]['categoryId']) {
+						categoryList[list]['categoryId'] = solutionArr[item]['category']['id'];
+						categoryList[list]['count'] += 1;
+
+						if (solutionArr[item]['status'] == -1) {
+							categoryList[list]['request'] += 1;
+						}
+					}
+				}
 			}
 		}
+
+		this.setState({solutionByCategory: categoryList});
 	}
 
-	customSolution() {
+	customSolution(event) {
+		console.log("Event: ", event);
 		window.location = '/custom-solution';
 	}
 
@@ -81,15 +122,19 @@ class SolutionComponent extends React.Component {
 				</div>
 				<div className="section__body">
 					<div className="grid">
-						{this.state.solutions.map((solution) => 
+						{this.state.solutionByCategory.map((solution) => 
 							<div className="solution-library">
-								<div className="solution-library__request"> 
-									<span id="request-number" > 03 </span> Requests 
-								</div>
-								<div className="solution-library__title" onClick={this.customSolution.bind(this)}> <span> { solution.name } </span> </div>
+								{solution.request > 0 ?
+									<div className="solution-library__request"> 
+										<span id="request-number" > {solution.request} </span> Requests 
+									</div>
+								:
+									""
+								}
+								<div className="solution-library__title" sid={solution.id} onClick={(event) => this.customSolution(solution.id, this)}> <span> { solution.categoryName } </span> </div>
 								<div className="solution-library__count">
 									<div>
-										<span className="solution-library-count__number"> 12 </span> Solutions 
+										<span className="solution-library-count__number"> {solution.count} </span> Solutions 
 									</div>
 								</div>
 							</div>
@@ -102,10 +147,9 @@ class SolutionComponent extends React.Component {
 }
 
 SolutionComponent.propTypes = {
-	data: PropTypes.object
+	data: PropTypes.object,
+	categories: PropTypes.object
 }
-
-// export default SolutionComponent;
 
 export default connect(
 	mapStateToProps,

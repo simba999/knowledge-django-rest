@@ -182,6 +182,7 @@ class DataSet(models.Model):
     user = models.ForeignKey(User, related_name="user_dataset")
     solution = models.ForeignKey("Solution", null=True, blank=True, related_name="datasets_solution")
     category = models.ForeignKey(Category)
+    parent = models.ForeignKey("DataSet", null=True, blank=True)
     type = models.IntegerField(default=0)
     price = models.ForeignKey("Price", blank=True, null=True, related_name="datasets_price")
     accessparameters = models.CharField(max_length=255, null=True, blank=True)

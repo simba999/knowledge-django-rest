@@ -8,7 +8,7 @@ export default (state = {active: false, count: 0}, action) => {
 		case GET_SOLUTION_BY_CATEGORY:
 			return {active: 1, data:action.data}
 		case GET_CATEGORIES:
-			return {active: 1, data:action.categories}
+			return {active: 1, categories:action.categories}
 		default:
 			return state;
 	}

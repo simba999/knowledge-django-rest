@@ -128,23 +128,6 @@ def get_notebook_by_user(user_id):
         raise Http404
 
 
-# def authentication(username, password):
-#     print "Login View"
-#     if not username or not password:
-#         return False
-    
-#     user = get_user_by_name(username)
-#     pwd_valid = check_password(password, user.password)
-#     if pwd_valid:
-#         user.remember_token = uuid.uuid4()
-#         user.is_staff = True
-#         user.is_superuser = True
-#         user.save()
-#         return True
-#     else:
-#         return False
-
-
 # @csrf_exempt
 class AuthenticationView(APIView):
     authentication_classes = (ExampleAuthentication,)
@@ -158,50 +141,9 @@ class AuthenticationView(APIView):
 
     # @csrf_exempt
     def post(self, request):
-        # return Response("ok")
         return Response(self.serializer_class(request.user).data)
-        # username = request.data.get('username')
-        # password = request.data.get('password')
-        # if not username or not password:
-        #     return Response("Please insert username or password", status=status.HTTP_204_NO_CONTENT)
-        
-        # user = self.get_object(username)
-        # # print password
-        # pwd_valid = authentication(username, password)
-        # if pwd_valid:
-        #     user.remember_token = uuid.uuid4()
-        #     user.save()
-        #     return Response({'token': user.remember_token}, status=status.HTTP_200_OK)
-        # else:
-        #     return Response("Authentication Error", status=status.HTTP_401_UNAUTHORIZED)
 
 
-class LoginView(APIView):
-    def get_object(self, username):
-        try:
-            return User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise Http404 
-
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        if not username or not password:
-            return Response("Please insert username or password", status=status.HTTP_204_NO_CONTENT)
-
-
-        
-        user = self.get_object(username)
-        pwd_valid = check_password(password, user.password)
-        if pwd_valid:
-            user.remember_token = uuid.uuid4()
-            user.save()
-            return Response({'token': user.remember_token}, status=status.HTTP_200_OK)
-        else:
-            return Response("Authentication Error", status=status.HTTP_401_UNAUTHORIZED)
-
-
-# Create your views here.
 # Solution APIs Begins
 class SolutionViewSet(viewsets.ModelViewSet):
     queryset = Solution.objects.all()
@@ -256,7 +198,6 @@ class SolutionLibraryView(APIView):
 
     def get(self, request, category_id, format=None):
         solution = self.get_object(category_id)
-        print solution
         serializer = SolutionSerializer(solution, many=True)
         data = JSONRenderer().render(serializer.data)
         return Response(serializer.data)
@@ -731,12 +672,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return '123'
 
     def list(self, request):
-        print "Current User: "
-        print request.user
         users = User.objects.all()
-        # for user in users:
-        #     user.password = make_password(user.password)
-        #     user.save()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
@@ -1306,3 +1242,67 @@ class CommissionViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("Token is wrong or expired", status=status.HTTP_401_UNAUTHORIZED)
+
+
+# BRANCH
+class BranchSolutionByParentId(APIView):
+    def get_notebooks_by_id(self, id):
+        try:
+            return Notebook.objects.filter(parent=id)
+        except:
+            raise Http404
+
+    def get_solutions_by_id(self, id):
+        try:
+            return Solution.objects.filter(parent=id)
+        except:
+            raise Http404
+
+    def get_datasets_by_id(self, id):
+        try:
+            return DataSet.objects.filter(parent=id)
+        except:
+            raise Http404
+
+    def get(self, request, parent_id, type, format=None):
+        if type == "dataset":
+            datasets = self.get_datasets_by_id(parent_id)
+            serializer = DatasetSerializer(datasets, many=True)
+            return Response(serializer.data)
+        
+        if type == "solution":
+            solutions = self.get_solutions_by_id(parent_id)
+            serializer = SolutionSerializer(solutions, many=True)
+            return Response(serializer.data)
+
+        if type == "notebook":
+            notebooks = self.get_notebooks_by_id(parent_id)
+            serializer = NotebookSerializer(notebooks, many=True)
+            return Response(serializer.data)
+        return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
+
+
+class LibraryViewById(APIView):
+    def get_objects(self, id):
+        try:
+            return Solution.objects.filter(library_id=id, type__name=SOLUTION_TYPE['SoluitionLibrary'])
+        except Exception as e:
+            raise Http404
+
+    def get(self, request, id):
+        solution_libraries = self.get_objects(id)
+        serializer = SolutionSerializer(solution_libraries, many=True)
+        return Response(serializer.data)
+
+    def put(self, request, id):
+        serializer = SolutionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.library_id = id
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id):
+        solution_libraries = self.get_objects(id)
+        solution_libraries.delete()
+        return Response('Success')

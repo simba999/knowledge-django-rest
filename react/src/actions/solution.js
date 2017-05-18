@@ -1,5 +1,10 @@
-import {GET_SOLUTION_BY_CATEGORY} 	from '../constants';
-import {GET_CATEGORIES} 			from '../constants';
+import {
+	GET_SOLUTION_BY_CATEGORY,
+	GET_CATEGORIES,
+	GET_CUSTOM_SOLUTION
+
+} 									from '../constants';
+
 import solutionApi 					from '../api/solutionApi';
 
 export function getSolutionLibraryByUser(data) {
@@ -13,6 +18,13 @@ export function getCategories(data) {
 	return {
 		type: GET_CATEGORIES,
 		categories: data
+	}
+}
+
+export function setCustomSolutionId(id) {
+	return {
+		type: GET_CUSTOM_SOLUTION,
+		data: id
 	}
 }
 

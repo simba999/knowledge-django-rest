@@ -10,7 +10,7 @@ class SolutionSerializer(serializers.ModelSerializer):
         fields = ('id', 'category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library_id', 'price', 'workflow_id', 
                 'tags', 'name', 'title', 'description', 'rating', 'score', 'ensemble', 'metaensemble', 'dataset',
                 'author', 'status', 'created_at', 'updated_at')
-        # depth = 1
+        depth = 1
 
 
 class SolutionAllSerializer(serializers.ModelSerializer):

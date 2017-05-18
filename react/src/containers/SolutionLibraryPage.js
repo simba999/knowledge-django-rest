@@ -3,14 +3,21 @@ import React, {
   PropTypes
 }                                 from 'react';
 import {connect} from 'react-redux';
+import {fetchSolution, fetchCategories} 	from '../actions/solution';
 import SolutionComponent from '../components/SolutionComponent';
 
 function mapStateToProps(state) {
-	return {}
+	// console.log("AA: ", state);
+	return {
+		data: state.solution.data,
+		categories: state.solution.categories
+	}
 }
 
 function mapDispatchToProps(dispatch) {
   return {
+    fetchSolution: () => dispatch(fetchSolution()),
+    fetchCategories: () => dispatch(fetchCategories()),
   };
 }
 
@@ -20,8 +27,16 @@ class SolutionLibraryPage extends React.Component {
 	}
 
 	componentDidMount() {
-		// const { getSolutionLibraryByUser } = this.props;
-		// getSolutionLibraryByUser();
+		// this.props.fetchSolution();
+		// this.props.fetchCategories();
+	}
+
+	componentWillReceiveProps(props) {
+		// this.setState({solutions: props.data});
+		// this.setState({categories: props.categories});
+		// this.state.solutions = props.data;
+		// this.state.categories = props.categories;
+		
 	}
 
 	solutionDetail() {
@@ -39,7 +54,10 @@ class SolutionLibraryPage extends React.Component {
 }
 
 SolutionLibraryPage.propTypes = {
-
+	data: PropTypes.object,
+	categories: PropTypes.object,
+	fetchSolution: PropTypes.func,
+	fetchCategories: PropTypes.func
 }
 
 export default connect(
