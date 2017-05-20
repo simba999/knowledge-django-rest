@@ -3,7 +3,7 @@ import React, {
   PropTypes
 }                       							from 'react';
 import {connect} 									from 'react-redux';
-import {fetchSolution} 								from '../../actions/solution';
+import {fetchSolutionHome, setSolutionParentId} 								from '../../actions/solution';
 import solutionApi 									from '../../api/solutionApi';
 
 function mapStateToProps(state) {
@@ -16,8 +16,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    fetchSolution: () => dispatch(fetchSolution()),
+    fetchSolutionHome: (id) => dispatch(fetchSolutionHome(id)),
     fetchCategories: () => dispatch(fetchCategories()),
+    setSolutionParentId: () => dispatch(setSolutionParentId())
   };
 }
 
@@ -36,12 +37,14 @@ class SolutionComponent extends React.Component {
 	}
 
 	componentWillMount() {
-		const { fetchSolution, fetchCategories } = this.props;
+		const { fetchSolutionHome, fetchCategories } = this.props;
 		
-		fetchSolution();
+		fetchSolutionHome(1);
 	}
 
 	componentWillReceiveProps(nextProps, prevProps) {
+		console.log("nextProps: ", nextProps);
+		console.log("prevProps: ", prevProps);
 		let solutionData = prevProps;
 
 		if (nextProps != prevProps && typeof nextProps.data != 'undefined') {
@@ -55,47 +58,28 @@ class SolutionComponent extends React.Component {
 	divideByCategory(solutionArr) {
 		let categoryList = [];
 		let categoryIdList = []
+		console.log("solutionArr: ", solutionArr)
+		for (let category in solutionArr) {
+			console.log("parentCategory: ", category["Category"]);
 
-		for (let item in solutionArr) {
-			let tempArr = {};
+			for (let parentCategory in category["Category"]) {
 
-			// check if the input item belongs to the exixting list.
-			if ( categoryIdList.includes(solutionArr[item]['category']['id']) == false ) {
-				tempArr['categoryId'] = solutionArr[item]['category']['id'];
-				tempArr['count'] = 1;
-				tempArr['categoryName'] = solutionArr[item]['category']['name'];
-				tempArr['id'] = solutionArr[item]['id']
-
-				if (solutionArr[item]['status'] == -1) {
-					tempArr['request'] = 1;
-				} 
-				else {
-					tempArr['request'] = 0;
-				}
-
-				categoryList.push(tempArr);
-				categoryIdList.push(tempArr['categoryId'])
 			}
-			else {
-				for (let list in categoryList ) {
-					if (solutionArr[item]['category']['id'] == categoryList[list]['categoryId']) {
-						categoryList[list]['categoryId'] = solutionArr[item]['category']['id'];
-						categoryList[list]['count'] += 1;
+			tempCategory = {}
+			tempCategory['id'] = category['id']
+			tempCategory['name'] = category['name']
+			categoryList.push(tempCategory)
+			// for (childCategory in category) {
 
-						if (solutionArr[item]['status'] == -1) {
-							categoryList[list]['request'] += 1;
-						}
-					}
-				}
-			}
+			// }
 		}
 
 		this.setState({solutionByCategory: categoryList});
 	}
 
-	customSolution(event) {
-		console.log("Event: ", event);
-		window.location = '/custom-solution';
+	customSolution(id) {
+		this.props.setSolutionParentId(id)
+		window.location = '/custom-solution' + '/' + id;
 	}
 
 	render() {
@@ -138,7 +122,7 @@ class SolutionComponent extends React.Component {
 									</div>
 								</div>
 							</div>
-						)}
+						)}	
 					</div>
 				</div>
 			</div>

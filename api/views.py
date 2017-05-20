@@ -1,7 +1,10 @@
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
+from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -9,11 +12,11 @@ from rest_framework import permissions
 from rest_framework import authentication
 from rest_framework import exceptions
 from rest_framework.decorators import api_view
-from solutions.models import Solution, Category, Performance, Notebook, DataSet, Price, Ensemble, MetaEnsemble, Commission
-from api.models import User
+from api.models import Solution, Category, Performance, Notebook, DataSet, Price, Ensemble
+from api.models import User, MetaEnsemble, Commission, Vertical, Library
 from api.serializers import SolutionSerializer, NotebookSerializer, SolutionAllSerializer, AnomalySerializer
 from api.serializers import UserSerializer, MetaEnsembleSerializer, DatasetSerializer, NotebookAllSerializer
-from api.serializers import CommissionSerializer, AdminMemberSerializer
+from api.serializers import CommissionSerializer, AdminMemberSerializer, LibrarySerializer, VerticalSerializer
 from api.serializers import CategorySerializer, DatasetSerializer, PriceSerializer, PerformanceSerializer, EnsembleSerializer
 from rest_framework.renderers import JSONRenderer
 import json
@@ -27,6 +30,7 @@ from functools import wraps
 from authentication import ExampleAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
+import json
 import pdb
 
 SOLUTION_TYPE = {
@@ -128,6 +132,13 @@ def get_notebook_by_user(user_id):
         raise Http404
 
 
+def validate(val):
+    try:
+        return val.encode('utf-8')
+    except Exception as e:
+        return ''
+
+
 # @csrf_exempt
 class AuthenticationView(APIView):
     authentication_classes = (ExampleAuthentication,)
@@ -159,13 +170,7 @@ class SolutionViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        token = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
-
-        if token == self.get_token():
+        if request.user.is_authenticated():
             serializer = SolutionSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -344,20 +349,12 @@ class ParentSolutionView(APIView):
 
 
 class SearchSolutionView(APIView):
-    def get_token(self):
-        return '123'
-
-    def  post(self, request,format=None):
-        token = ''
+    def  post(self, request, format=None):
         term = request.data['term']
         type_id = request.data['type_id']
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
         query = Q()
-        if token == self.get_token():
+        if request.user.is_authenticated():
             query |= Q(name__icontains=term)
             query |= Q(title__icontains=term)
             query |= Q(description__icontains=term)
@@ -370,9 +367,8 @@ class SearchSolutionView(APIView):
 
             serializer = SolutionAllSerializer(solutions, many=True)
             return Response(serializer.data)
-
         else:
-            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+            raise exceptions.NotAuthenticated('Token is missed')
 
 
 #POST /solution/customsolution
@@ -433,7 +429,7 @@ class CategoryNotebookView(APIView):
         return Response(serializer.data)
 
 
-class CategoryDatasetView(APIView):
+class category_datasetView(APIView):
     def get_notebook_objects(self, pk):
         try:
             return DataSet.objects.filter(category__id=pk)
@@ -624,10 +620,6 @@ class FilterNotebookView(APIView):
     def post(self, request):
         token = ''
         value = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
         try:
             value = request.data['value']
@@ -643,7 +635,7 @@ class FilterNotebookView(APIView):
         if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
-        if token == self.get_token():
+        if request.user.is_authenticated():
             raw_query = 'SELECT * FROM solutions_notebook WHERE ' + filter_name + operator + value;
             if value == '':
                 notebooks = Notebook.objects.all()
@@ -666,10 +658,6 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = AdminMemberSerializer
     # permission_classes = (IsAuthenticated,)
-    # permission_classes = (permissions.AllowAny,)
-
-    def get_token(self):
-        return '123'
 
     def list(self, request):
         users = User.objects.all()
@@ -677,13 +665,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        token = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
-
-        if token == self.get_token():
+        if request.user.is_authenticated():
             request.data['password'] = make_password(password)
             serializer = UserSerializer(data=request.data)
             if serializer.is_valid():
@@ -695,6 +677,41 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserViewTypesByUser(APIView):
+    def get_librarys_by_category(self, category_id):
+        try:
+            return Library.objects.filter(category=category_id)
+        except Library.DoesNotExist:
+            return None
+
+    def get_solutions_by_library(self, library_id):
+        solution_data = []
+        # pdb.set_trace()
+        parent_solutions = Solution.objects.filter(library=library_id)
+
+        if not parent_solutions:
+            solution_data = []
+            print solution_data
+            return solution_data
+        else:
+            for parent_solution in parent_solutions:
+                temp_parent_solution = {}
+                temp_parent_solution['id'] = parent_solution.id
+                temp_parent_solution['name'] = validate(parent_solution.name)
+
+                chlid_solution_data = []
+                child_solutions = Solution.objects.filter(parent=parent_solution.id)
+
+                if not child_solutions:
+                    chlid_solution_data = []
+                else:
+                    for child_solution in json.loads(serializers.serialize('json', child_solutions)):
+                        temp_child_solution = child_solution
+                        chlid_solution_data.append(temp_parent_solution)
+                temp_parent_solution['Solution'] = chlid_solution_data
+                solution_data.append(temp_parent_solution)
+            print solution_data
+            return solution_data
+
     def get(self, request, user_id, type, format=None):
         if type == "solutions":
             solutions = get_solutions_by_user(user_id)
@@ -711,10 +728,85 @@ class UserViewTypesByUser(APIView):
             serializer = SolutionSerializer(datasets, many=True)
             return Response(serializer.data)
 
-        if type == "notebooks":
-            notebooks = get_notebook_by_user(user_id)
-            serializer = NotebookSerializer(notebooks, many=True)
-            return Response(serializer.data)
+        # if type == "notebooks":
+        #     notebooks = get_notebook_by_user(user_id)
+        #     serializer = NotebookSerializer(notebooks, many=True)
+        #     return Response(serializer.data)
+
+        if type == "home":
+            results = {}
+            
+            verticals = Vertical.objects.filter(user=user_id)
+            if not verticals:
+                return Response({})
+            vertical_data = []
+            parent_category_data = []
+
+            for vertical in verticals:
+                temp_vertical = {}
+                temp_vertical["id"] = vertical.id
+                temp_vertical["name"] = validate(vertical.name)
+
+                categories = Category.objects.all() #filter(pk=vertical.category)
+                for category in categories:
+                    temp_parent_category = {}
+                    temp_parent_category['id'] = category.id
+                    temp_parent_category['name'] = validate(category.name)
+
+                    child_category_data = []
+
+                    sub_categories = Category.objects.filter(parent=category.id)
+
+                    if not sub_categories:
+                        temp_parent_category['Category'] = []
+                        parent_category_data.append(temp_parent_category)
+                    else:
+                        for sub_category in sub_categories:
+                            temp_child_category = {}
+                            temp_child_category['id'] = category.id
+                            temp_child_category['name'] = validate(category.name)
+                            child_category_data.append(temp_child_category)
+
+                        temp_parent_category['Category'] = child_category_data
+                        parent_category_data.append(temp_parent_category)
+                
+                for parent_item in parent_category_data:
+                    if not parent_item['Category']:
+                        librarys = self.get_librarys_by_category(parent_item['id'])
+
+                        library_data = []
+
+                        for library in librarys:
+                            temp_library = {}
+                            temp_library['id'] = library.id
+                            temp_library['name'] = validate(library.name)
+                            solutions = self.get_solutions_by_library(library.id)
+                            temp_library['Solution'] = solutions
+                            library_data.append(temp_library)
+
+                        parent_item['Library'] = library_data
+                    else:
+                        for category_item in parent_item['Category'].items():
+                            librarys = self.get_librarys_by_category(parent_item['Category']['id'])
+
+                            library_data = []
+                            libraty_solution_data = []
+
+                            for library in librarys:
+                                temp_library = {}
+                                temp_library['id'] = library.id
+                                temp_library['name'] = validate(library.name)
+                                solutions = self.get_solutions_by_library(library.id)
+                                temp_library['Solution'] = solutions
+                                library_data.append(temp_library)
+
+                            category_item['Library'] = library_data
+                temp_vertical['Category'] = parent_category_data
+                vertical_data.append(temp_vertical)
+            print vertical_data
+            # print DjangoJSONEncoder().default(vertical_data)
+            # print serializers.serialize('json', vertical_data)
+            return JsonResponse(vertical_data, safe=False)
 
         return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
 
@@ -731,32 +823,23 @@ class UserSolutionLibraryViewById(APIView):
 
 
 class UsersCommissionsSetView(APIView):
-    def get_token(self):
-        return '123'
-
     def post(self, request, user_id, type):
-        token = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-            exchange = request.data['exchange']
-        except:
-            raise exceptions.NotAuthenticated('Token or exchange is missed')
-
         if type == 'exchange':
-            if token == self.get_token():
+            if request.user.is_authenticated():
                 user = get_user_by_pk(user_id)
                 user.exchange = exchange
                 user.save()
                 return Response('success', status=status.HTTP_202_ACCEPTED)
             else:
-                return Response('Token is not correct', status=status.HTTP_401_UNAUTHORIZED)
+                raise exceptions.NotAuthenticated('Authenticated Error')
+
         if type == 'pay':
-            if token == self.get_token():
+            if request.user.is_authenticated():
                 user = get_user_by_pk(user_id)
                 user.exchange = exchange
                 user.save()
             else:
-                return Response('Token is not correct', status=status.HTTP_401_UNAUTHORIZED)
+                raise exceptions.NotAuthenticated('Authenticated Error')
 
         return Response("Request is not correct", status=status.HTTP_400_BAD_REQUEST)
 
@@ -792,9 +875,6 @@ class NotebookViewTypesById(APIView):
 
 
 class SearchNotebookView(APIView):
-    def get_token(self):
-        return '123'
-
     def post(self, request, format=None):
         token = ''
         term = ''
@@ -808,13 +888,8 @@ class SearchNotebookView(APIView):
             type_id = request.data['type_id']
         except:
             raise Response("parameter is not correct")
-        # pdb.set_trace()
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
-        if token == self.get_token():
+        if request.user.is_authenticated():
             try:
                 notebooks = Notebook.objects.all()
             except Notebook.DoesNotExist:
@@ -836,9 +911,6 @@ class SearchNotebookView(APIView):
 
 # DATASET BEGINS
 class SearchDatasetView(APIView):
-    def get_token(self):
-        return '123'
-
     def post(self, request, format=None):
         token = ''
         term = ''
@@ -849,12 +921,7 @@ class SearchDatasetView(APIView):
         except:
             return Response("parameter is not correct")
 
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
-
-        if token == self.get_token():
+        if request.user.is_authenticated():
             try:
                 datasets = DataSet.objects.all()
             except DataSet.DoesNotExist:
@@ -870,24 +937,16 @@ class SearchDatasetView(APIView):
 
             serializer = DatasetSerializer(datasets, many=True)
             return Response(serializer.data)
-
         else:
-            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+            raise exceptions.NotAuthenticated('Authenticated Error')
 
 
 class FilterDatasetView(APIView):
     FILTER_TYPE = ['type_id', 'ensemble_id', 'metaensemble_id', 'solution_id', 'category_id', 'user_id']
 
-    def get_token(self):
-        return '123'
-
     def post(self, request):
         token = ''
         value = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
         try:
             value = request.data['value']
@@ -903,7 +962,7 @@ class FilterDatasetView(APIView):
         if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
-        if token == self.get_token():
+        if request.user.is_authenticated():
             raw_query = 'SELECT * FROM solutions_dataset WHERE ' + filter_name + operator + value;
             if value == '':
                 datasets = DataSet.objects.all()
@@ -937,16 +996,9 @@ class SolutionDataSetView(APIView):
 class FilterSolutionView(APIView):
     FILTER_TYPE = ['category_id', 'type_id', 'tags', 'author', 'created_at', 'updated_at']
 
-    def get_token(self):
-        return '123'
-
     def post(self, request):
         token = ''
         value = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
         try:
             value = request.data['value']
@@ -962,7 +1014,7 @@ class FilterSolutionView(APIView):
         if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
-        if token == self.get_token():
+        if request.user.is_authenticated():
             raw_query = 'SELECT * FROM solutions_solution WHERE ' + filter_name + operator + value;
             if value == '':
                 solutions = Solution.objects.all()
@@ -974,9 +1026,8 @@ class FilterSolutionView(APIView):
 
             serializer = SolutionSerializer(solutions, many=True)
             return Response(serializer.data)
-
         else:
-            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+            raise exceptions.NotAuthenticated('Authenticated Error')
 
 
 class DatasetViewTypesById(APIView):
@@ -1011,35 +1062,23 @@ class EnsembleViewSet(viewsets.ModelViewSet):
     serializer_class = EnsembleSerializer
     # permission_classes = (permissions.AllowAny,)
 
-    def get_token(self):
-        return '123'
-
     def list(self, request):
         ensembles = Ensemble.objects.all()
         serializer = EnsembleSerializer(ensembles, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        token = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
-
-        if token == self.get_token():
+        if request.user.is_authenticated():
             serializer = EnsemblesSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response("Token is wrong or expired", status=status.HTTP_401_UNAUTHORIZED)
+            raise exceptions.NotAuthenticated('Authenticated Error')
 
 
 class SearchEnsembleView(APIView):
-    def get_token(self):
-        return '123'
-
     def post(self, request, format=None):
         token = ''
         try:
@@ -1050,13 +1089,9 @@ class SearchEnsembleView(APIView):
             type_id = request.data['type_id']
         except:
             type_id = 0
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
         query = Q()
-        if token == self.get_token():
+        if request.user.is_authenticated():
             query |= Q(name__icontains=term)
             # query |= Q(description__icontains=term)
             
@@ -1068,9 +1103,8 @@ class SearchEnsembleView(APIView):
 
             serializer = EnsembleSerializer(ensembles, many=True)
             return Response(serializer.data)
-
         else:
-            return Response("error", status=status.HTTP_401_UNAUTHORIZED)
+            raise exceptions.NotAuthenticated('Authenticated Error')
 
 
 class FilterEnsembleView(APIView):
@@ -1082,10 +1116,6 @@ class FilterEnsembleView(APIView):
     def post(self, request):
         token = ''
         value = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
         try:
             value = request.data['value']
@@ -1101,7 +1131,7 @@ class FilterEnsembleView(APIView):
         if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
-        if token == self.get_token():
+        if request.user.is_authenticated():
             raw_query = 'SELECT * FROM solutions_ensemble WHERE ' + filter_name + operator + value;
             if value == '':
                 ensembles = Ensemble.objects.all()
@@ -1179,10 +1209,6 @@ class FilterMetaEnsembleView(APIView):
     def post(self, request):
         token = ''
         value = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
         try:
             value = request.data['value']
@@ -1198,7 +1224,7 @@ class FilterMetaEnsembleView(APIView):
         if operator not in OPERATOR_LIST or filter_name not in self.FILTER_TYPE:
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
-        if token == self.get_token():
+        if request.user.is_authenticated():
             raw_query = 'SELECT * FROM solutions_metaensemble WHERE ' + filter_name + operator + value;
             if value == '':
                 meta_ensembles = MetaEnsemble.objects.all()
@@ -1219,9 +1245,6 @@ class CommissionViewSet(viewsets.ModelViewSet):
     queryset = Commission.objects.all()
     serializer_class = CommissionSerializer
 
-    def get_token(self):
-        return '123'
-
     def list(self, request):
         commissions = Commission.objects.all()
         serializer = CommissionSerializer(commissions, many=True)
@@ -1229,12 +1252,8 @@ class CommissionViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         token = ''
-        try:
-            token = request.META['HTTP_TOKEN']
-        except:
-            raise exceptions.NotAuthenticated('Token is missed')
 
-        if token == self.get_token():
+        if request.user.is_authenticated():
             serializer = CommissionSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -1282,27 +1301,107 @@ class BranchSolutionByParentId(APIView):
         return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
 
 
-class LibraryViewById(APIView):
-    def get_objects(self, id):
-        try:
-            return Solution.objects.filter(library_id=id, type__name=SOLUTION_TYPE['SoluitionLibrary'])
-        except Exception as e:
-            raise Http404
+# class VerticalViewById(APIView):
+#     def get_objects(self, id):
+#         try:
+#             return Vertical.objects.filter(pk=id, type__name=SOLUTION_TYPE['SoluitionLibrary'])
+#         except Exception as e:
+#             raise Http404
 
-    def get(self, request, id):
-        solution_libraries = self.get_objects(id)
-        serializer = SolutionSerializer(solution_libraries, many=True)
+#     def put(self, request, id):
+#         serializer = VerticalSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.library_id = id
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def delete(self, request, id):
+#         solution_libraries = self.get_objects(id)
+#         solution_libraries.delete()
+#         return Response('Success')
+
+
+# class VerticalAddView(APIView):
+#      def post(self, request, id):
+#         serializer = VerticalSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.library_id = id
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class VerticalViewSet(viewsets.ModelViewSet):
+    queryset = Vertical.objects.all()
+    serializer_class = VerticalSerializer
+
+    def get_token(self):
+        return '123'
+
+    def list(self, request):
+        verticals = Vertical.objects.all()
+        serializer = VerticalSerializer(verticals, many=True)
+        data = JSONRenderer().render(serializer.data)
         return Response(serializer.data)
 
-    def put(self, request, id):
-        serializer = SolutionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.library_id = id
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            serializer = VerticalSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Token is wrong or expired", status=status.HTTP_401_UNAUTHORIZED)
 
-    def delete(self, request, id):
-        solution_libraries = self.get_objects(id)
-        solution_libraries.delete()
-        return Response('Success')
+
+class LibraryViewSet(viewsets.ModelViewSet):
+    queryset = Library.objects.all()
+    serializer_class = LibrarySerializer
+
+    def get_token(self):
+        return '123'
+
+    def list(self, request):
+        libraries = Library.objects.all()
+        serializer = LibrarySerializer(libraries, many=True)
+        data = JSONRenderer().render(serializer.data)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            serializer = LibrarySerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Token is wrong or expired", status=status.HTTP_401_UNAUTHORIZED)
+
+# class LibraryViewById(APIView):
+#     def post(self, request):
+#         solution = request.data.get('solution')
+#         return Response("None")
+
+
+class UserHomeView(APIView):
+    def get_solutions_by_id(self, library_id):
+        try:
+            return Solution.objects.filter(library=library_id)
+        except:
+            return None
+
+    def get_vertical_id(category_id):
+        try:
+            return Vertical.objects.filter(category=category_id)
+        except Exception as e:
+            return None
+
+    def get(self, request, user_id):
+        results = []
+        pdb.set_trace()
+        verticals = Vertical.objects.filter(user=user_id)
+
+        for vertical in verticals:
+            libraries = Library.objects.filter(vetical=vertical.id)
+

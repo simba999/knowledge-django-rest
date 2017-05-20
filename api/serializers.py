@@ -1,13 +1,14 @@
 from rest_framework import serializers
-from api.models import Category, User
-from solutions.models import Solution, Notebook, DataSet, Price, Performance, MetaEnsemble, Ensemble, Commission
+from api.models import User
+from api.models import Solution, Category, Notebook, DataSet, Price, Performance
+from api.models import MetaEnsemble, Ensemble, Commission, Library, Vertical
 from django.contrib.auth.models import User as AdminMember
 
 
 class SolutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solution
-        fields = ('id', 'category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library_id', 'price', 'workflow_id', 
+        fields = ('id', 'category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library', 'price', 'workflow_id', 
                 'tags', 'name', 'title', 'description', 'rating', 'score', 'ensemble', 'metaensemble', 'dataset',
                 'author', 'status', 'created_at', 'updated_at')
         depth = 1
@@ -16,7 +17,7 @@ class SolutionSerializer(serializers.ModelSerializer):
 class SolutionAllSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solution
-        fields = ('id', 'category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library_id', 'price', 'workflow_id', 
+        fields = ('id', 'category', 'user', 'usergroup_ID', 'type', 'parent', 'notebook', 'library', 'price', 'workflow_id', 
                 'tags', 'name', 'title', 'description', 'rating', 'score', 'ensemble', 'metaensemble', 'dataset',
                 'author', 'status', 'created_at', 'updated_at')
         depth = 1
@@ -113,6 +114,29 @@ class CommissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Commission
         fields = ('user', 'solution', 'product_sales')
+
+
+class LibrarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Library
+        fields = ('id', 'name', 'category', 'vertical')
+        depth = 1
+
+
+class VerticalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vertical
+        fields = ('id', 'name')
+
+
+class HomeSerializer(serializers.ModelSerializer):
+    vertical = VerticalSerializer()
+    solution = SolutionSerializer()
+    library = LibrarySerializer()
+
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'vertical', 'solution', 'library')
 
 # class UserDemoSerializer(serializers.ModelSerializer):
 #     class Meta:

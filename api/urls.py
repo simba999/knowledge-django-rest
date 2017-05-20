@@ -14,6 +14,8 @@ router.register(r'users', views.UserViewSet, base_name='users')
 router.register(r'performances', views.PerformanceViewSet, base_name='performance')
 router.register(r'ensembles', views.EnsembleViewSet, base_name='ensembles')
 router.register(r'commissions', views.CommissionViewSet, base_name='commissions')
+router.register(r'vertical', views.VerticalViewSet, base_name='vertical')
+# router.register(r'library', views.LibraryViewSet, base_name='library')
 # router.register(r'groups', views.GroupViewSet)
 
 # Wire up our API using automatic URL routing.
@@ -42,7 +44,7 @@ urlpatterns = [
     url(r'^search/solution/$', views.SearchSolutionView.as_view()),
 
     url(r'^categories/(?P<id>[0-9]+)/notebooks/$', views.CategoryNotebookView.as_view()),
-    url(r'^categories/(?P<id>[0-9]+)/datasets/$', views.CategoryDatasetView.as_view()),
+    # url(r'^categories/(?P<id>[0-9]+)/datasets/$', views.CategoryDatasetView.as_view()),
     url(r'^categories/(?P<id>[0-9]+)/solutions/$', views.CategorySolutionView.as_view()),
 
     url(r'^performance/(?P<notebook_id>[0-9]+)/(?P<user_id>[0-9]+)/notebooks/$', views.PerformanceNotebookView.as_view()),
@@ -68,5 +70,5 @@ urlpatterns = [
     url(r'^datasets/(?P<dataset_id>[0-9]+)/(?P<type>\w+)$', views.DatasetViewTypesById.as_view()),
     url(r'^ensembles/(?P<ensemble_id>[0-9]+)/(?P<type>\w+)$', views.EnsembleViewTypesById.as_view()),
     url(r'^branch/(?P<type>\w+)/(?P<parent_id>[0-9]+)/$', views.BranchSolutionByParentId().as_view()),
-    url(r'^library/(?P<parent_id>[0-9]+)/$', views.LibraryViewById().as_view())
+    # url(r'^library/(?P<parent_id>[0-9]+)/$', views.LibraryViewById().as_view()),
 ]

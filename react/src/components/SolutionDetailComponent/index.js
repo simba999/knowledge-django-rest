@@ -44,7 +44,7 @@ class SolutionDetailComponent extends React.Component {
 						        <div className="sidebar__body">
 						          	<div className="sidebar__item">
 						          		<div className="sidebar-rect">
-						          			NO PURCHASE IN PRODUCT
+						          			<span> NO PURCHASE IN PRODUCT </span>
 						          		</div>
 						          	</div>
 						          	<div className="sidebar__item">
@@ -66,7 +66,16 @@ class SolutionDetailComponent extends React.Component {
 						        </div>
 						    </div>
 						</div>
-						<div className="layout__main"></div>
+						<div className="layout__main">
+							<div className="layout__header">
+								Requests for Soltutions (RFS)
+								<br />
+								Here represented all the request for the NO PURCHASE IN TARGETED MONTH solution
+							</div>
+							<div className="layout__content">
+
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

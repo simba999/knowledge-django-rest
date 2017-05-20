@@ -1,14 +1,54 @@
 import {
 	GET_SOLUTION_BY_CATEGORY,
-	GET_CATEGORIES
+	GET_CATEGORIES,
+	GET_SOLUTION_PARENT_ID,
+	SET_SOLUTION_PARENT_ID,
+	GET_SOLUTION_BY_PARENT_ID
 } from '../constants';
 
-export default (state = {active: false, count: 0}, action) => {
+const initiateState = {
+	active: 0,
+	solutionParentId: 0,
+	solutionChildId: 0,
+	data: [],
+	categories: [],
+	parentId: 0
+}
+
+export default (state = initiateState, action) => {
+	console.log("ReducerData: ", action)
 	switch (action.type) {
 		case GET_SOLUTION_BY_CATEGORY:
-			return {active: 1, data:action.data}
+			return {
+				...state,
+				active: 1, 
+				data: action.data
+			}
+		
 		case GET_CATEGORIES:
-			return {active: 1, categories:action.categories}
+			return {
+				...state,
+				active: 1,
+				categories: action.categories
+			}
+
+		case SET_SOLUTION_PARENT_ID:
+			return {
+				...state,
+				active: 1,
+				parentId: action.data
+			}
+		case GET_SOLUTION_PARENT_ID:
+			return {
+				...state,
+				active: 1,
+			}
+
+		case GET_SOLUTION_BY_PARENT_ID:
+			return {
+				...state,
+				data: action.data
+			}
 		default:
 			return state;
 	}
