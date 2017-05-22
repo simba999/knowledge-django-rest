@@ -1,4 +1,4 @@
-from django.http import Http404, JsonResponse
+from django.http import Http404, JsonResponse, HttpResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
@@ -685,21 +685,19 @@ class UserViewTypesByUser(APIView):
 
     def get_solutions_by_library(self, library_id):
         solution_data = []
-        # pdb.set_trace()
         parent_solutions = Solution.objects.filter(library=library_id)
-
         if not parent_solutions:
             solution_data = []
-            print solution_data
             return solution_data
         else:
-            for parent_solution in parent_solutions:
+            for parent_solution in json.loads(serializers.serialize('json', parent_solutions)):
                 temp_parent_solution = {}
-                temp_parent_solution['id'] = parent_solution.id
-                temp_parent_solution['name'] = validate(parent_solution.name)
+                temp_parent_solution = parent_solution
+                # temp_parent_solution['id'] = parent_solution.id
+                # temp_parent_solution['name'] = validate(parent_solution.name)
 
                 chlid_solution_data = []
-                child_solutions = Solution.objects.filter(parent=parent_solution.id)
+                child_solutions = Solution.objects.filter(parent=parent_solution["pk"])
 
                 if not child_solutions:
                     chlid_solution_data = []
@@ -709,7 +707,8 @@ class UserViewTypesByUser(APIView):
                         chlid_solution_data.append(temp_parent_solution)
                 temp_parent_solution['Solution'] = chlid_solution_data
                 solution_data.append(temp_parent_solution)
-            print solution_data
+                print "Solution********: "
+                print solution_data
             return solution_data
 
     def get(self, request, user_id, type, format=None):
@@ -803,10 +802,10 @@ class UserViewTypesByUser(APIView):
                             category_item['Library'] = library_data
                 temp_vertical['Category'] = parent_category_data
                 vertical_data.append(temp_vertical)
-            print vertical_data
-            # print DjangoJSONEncoder().default(vertical_data)
-            # print serializers.serialize('json', vertical_data)
-            return JsonResponse(vertical_data, safe=False)
+                print "Vertical Data*****************:"
+                print vertical_data
+            # return JsonResponse(vertical_data, safe=False)
+            return HttpResponse(vertical_data)
 
         return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
 
