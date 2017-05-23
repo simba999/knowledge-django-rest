@@ -76,7 +76,7 @@ class AnomalySerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'parent_id', 'group', 'tags', 'remember_token', 'image', 'profile_name',
+        fields = ('id', 'parent_id', 'group', 'tags', 'image', 'profile_name',
                 'profile_description', 'api_paypal', 'api_payment', 'commissions', 'commission_rate', 'commission_total', 'commission_monthtodata', 'number_transaction', 'trend',
                 'potential_place', 'potential_earning', 'total_commission', 'total_purchase', 'proj_earning_to_date', 'proj_earning_overall',
                 'proj_place_to_date', 'proj_place_overall', 'noteworthy', 'redeem_state', 'datascientist_reg', 'is_authenticated'

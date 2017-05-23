@@ -5,9 +5,10 @@ import React, {
 import {connect} 					from 'react-redux';
 import {
 	getSolutionParentId, 
-	fetchSolutionByCategoryId,
+	fetchSolution,
 	getCategoryName
 } 									from '../../actions/solution';
+import Modal						from 'react-bootstrap-modal';
 
 function mapStateToProps(state) {
 	console.log("Parent State: ", state);
@@ -21,27 +22,29 @@ function mapDispatchToProps(dispatch) {
   return {
     getSolutionParentId: () => dispatch(getSolutionParentId()),
     getCategoryName: () => dispatch(getCategoryName()),
-    fetchSolutionByCategoryId: (id) => dispatch(fetchSolutionByCategoryId(id))
+    fetchSolution: () => dispatch(fetchSolution())
   };
 }
 
-class CustomSolutionComponent extends React.Component {
+class ResultDetailComponent extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 
 		this.state = {
 			parentId: 0,
 			solutions: [],
-			solutionLists: 0
+			solutionLists: 0,
+			openModal: false,
+			closeModal: false
 		}
 		console.log("Contstructor", this.props.location.pathname);
 	}
 
 	componentWillMount() {
-		const { fetchSolutionByCategoryId, getCategoryName } = this.props;
+		const { fetchSolution, getCategoryName } = this.props;
 
 		this.setState({ parentId: this.props.location.pathname.split("/").splice(-1)[0] });
-		fetchSolutionByCategoryId(this.props.location.pathname.split("/").splice(-1)[0]);
+		fetchSolution();
 		// getCategoryName();
 	}
 
@@ -124,55 +127,71 @@ class CustomSolutionComponent extends React.Component {
 		}
 	}
 
+	openModal() {
+		this.setState({openModal: true});
+	}
+
+	closeModal()
+	 {
+	 	this.setState({openModal: false});
+	 }
 	render() {
 		return (
 			<div className="section">
-				<div className="section__header">
+				<div className="section__header section__header--thin no-border">
 					<div className="section-header">
-						<div className="section__title">
-							<div className="section-title">
-								CUSTOM PURCHASE
+						<div className="section-header__item">
+							<div className="section__back">
+								<a className="btn-circle btn-circle--back" href="/"></a>
 							</div>
 						</div>
-						<div className="section__filter">
-							<div className="filter">
-								Filter by: Most Recent
-							</div>
+						<div className="section-header__item section-header__item--forced-center">
+							<div className="section-header-circle">Request</div>
 						</div>
-						<div className="section__button">
-							<div className="btn">
-								+ Custom Solutions
+						<div className="section-header__item section-header__item--right">
+							<div className="section__buton">
+								<div className="btn" onClick={() => this.openModal()}>Selection Solution</div>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div className="section__body">
-					<div className="grid">
-						{this.state.solutions.map((solution) => 
-							<div className="solution-library">
-								{solution.status == -1 ?
-									<div className="solution-library__request"> 
-										<span id="request-number" > 1 </span> Requests 
-									</div>
-								:
-									""
-								}
-								<div className="solution-library__title" sid={solution.id} onClick={(event) => this.customSolution(solution.id, this)}> <span> { solution['name'] } </span> </div>
-								<div className="solution-library__count">
-									<div>
-										<span className="solution-library-count__number"> 1 </span> Solutions 
-									</div>
-								</div>
+					<div className="section_description">
+						<div className="section-description">
+							<div className="section-description__title">
+								Request #3 Type and Title
 							</div>
-						)}
+							<div className="section-description__text">
+								Requested Date: <span> 04/12/2017 </span>
+							</div>
+							<div className="section-description__separator separator"></div>
+						</div>
 					</div>
 				</div>
+				<Modal
+			        show={this.state.openModal}
+			        onHide={this.closeModal.bind(this)}
+			        className="createSolutionDialog"
+			        aria-labelledby="ModalHeader">
+			        <Modal.Body>
+			          <div className="header__text">
+			          	<div className="header-text__close-button">
+			            	<label className="btn-icon btn-icon--remove"></label>
+			            </div>
+			            <div className="header-text__title">Create a solution</div>
+			          </div>
+			          <div className="">
+			            ABC
+			          </div>
+			        </Modal.Body>
+			      </Modal>
 			</div>
+
 		);
 	}
 }
 
-CustomSolutionComponent.propTypes = {
+ResultDetailComponent.propTypes = {
 	parentID: PropTypes.string.isRequired,
 }
 
@@ -181,4 +200,4 @@ CustomSolutionComponent.propTypes = {
 export default connect(
 	mapStateToProps,
   	mapDispatchToProps
-)(CustomSolutionComponent);
+)(ResultDetailComponent);

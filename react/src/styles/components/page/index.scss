@@ -1,3 +1,44 @@
 .page {
   height: 100%;
 }
+
+.modal-dialog {
+	position: absolute;
+    top: 30%;
+    left: 45%;
+    width: 400px;
+    background: white;
+    height: 250px;
+}
+
+.close {
+	float: right;
+}
+
+.header__text {
+	/*display: flex;*/
+}
+
+.header-text__title {
+	font-size: 2em;
+	text-align: center;
+	margin-top: 20px;
+}
+
+.header-text__close-button {
+	float: right;
+	font-size: 8em;
+}
+
+.btn-icon {
+	width: 15px;
+    height: 15px;
+    padding-right: 20px;
+    display: block;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.btn-icon--remove {
+	background-image: url('http://localhost:8080/images/remove_icon.png');
+}

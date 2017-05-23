@@ -12,7 +12,10 @@ const initiateState = {
 	solutionChildId: 0,
 	data: [],
 	categories: [],
-	parentId: 0
+	solutionData: [],
+	parentId: 0,
+	userId: 0,
+	categoryName: ''
 }
 
 export default (state = initiateState, action) => {
@@ -22,7 +25,7 @@ export default (state = initiateState, action) => {
 			return {
 				...state,
 				active: 1, 
-				data: action.data
+				data: action.data,
 			}
 		
 		case GET_CATEGORIES:
@@ -49,6 +52,30 @@ export default (state = initiateState, action) => {
 				...state,
 				data: action.data
 			}
+
+		case 'SET_USER_ID':
+			return Object.assign({}, state, {
+		        userId: action.userId
+		      })
+
+		case 'SET_SOLUTION_DATA':
+		console.log("Solution Reducer: ", action)
+			return Object.assign({}, state, {
+		        solutionData: action.data
+		      })
+
+		case 'SET_CATEGORY_NAME':
+		console.log("Category Name: ", action)
+			return Object.assign({}, state, {
+		        categoryName: action.data
+		      })
+
+		case 'GET_CATEGORY_NAME':
+		console.log("Get categoryname");
+			return {
+				...state
+			}
+
 		default:
 			return state;
 	}

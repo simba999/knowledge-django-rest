@@ -636,7 +636,7 @@ class FilterNotebookView(APIView):
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
         if request.user.is_authenticated():
-            raw_query = 'SELECT * FROM solutions_notebook WHERE ' + filter_name + operator + value;
+            raw_query = 'SELECT * FROM api_notebook WHERE ' + filter_name + operator + value;
             if value == '':
                 notebooks = Notebook.objects.all()
             else:
@@ -703,12 +703,11 @@ class UserViewTypesByUser(APIView):
                     chlid_solution_data = []
                 else:
                     for child_solution in json.loads(serializers.serialize('json', child_solutions)):
-                        temp_child_solution = child_solution
+                        temp_child_solution = {}
+                        temp_child_solution = json.dumps(child_solution)
                         chlid_solution_data.append(temp_parent_solution)
-                temp_parent_solution['Solution'] = chlid_solution_data
+                temp_parent_solution['Solution'] = json.dumps(chlid_solution_data)
                 solution_data.append(temp_parent_solution)
-                print "Solution********: "
-                print solution_data
             return solution_data
 
     def get(self, request, user_id, type, format=None):
@@ -804,8 +803,8 @@ class UserViewTypesByUser(APIView):
                 vertical_data.append(temp_vertical)
                 print "Vertical Data*****************:"
                 print vertical_data
-            # return JsonResponse(vertical_data, safe=False)
-            return HttpResponse(vertical_data)
+            return JsonResponse(vertical_data, safe=False)
+            # return HttpResponse(vertical_data, content_type="application/json")
 
         return Response("Request Error", status=status.HTTP_400_BAD_REQUEST)
 
@@ -962,7 +961,7 @@ class FilterDatasetView(APIView):
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
         if request.user.is_authenticated():
-            raw_query = 'SELECT * FROM solutions_dataset WHERE ' + filter_name + operator + value;
+            raw_query = 'SELECT * FROM api_dataset WHERE ' + filter_name + operator + value;
             if value == '':
                 datasets = DataSet.objects.all()
             else:
@@ -1014,7 +1013,7 @@ class FilterSolutionView(APIView):
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
         if request.user.is_authenticated():
-            raw_query = 'SELECT * FROM solutions_solution WHERE ' + filter_name + operator + value;
+            raw_query = 'SELECT * FROM api_solution WHERE ' + filter_name + operator + value;
             if value == '':
                 solutions = Solution.objects.all()
             else:
@@ -1131,7 +1130,7 @@ class FilterEnsembleView(APIView):
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
         if request.user.is_authenticated():
-            raw_query = 'SELECT * FROM solutions_ensemble WHERE ' + filter_name + operator + value;
+            raw_query = 'SELECT * FROM api_ensemble WHERE ' + filter_name + operator + value;
             if value == '':
                 ensembles = Ensemble.objects.all()
             else:
@@ -1224,7 +1223,7 @@ class FilterMetaEnsembleView(APIView):
             return Response('operator or filter is not correct', status=status.HTTP_400_BAD_REQUEST)
 
         if request.user.is_authenticated():
-            raw_query = 'SELECT * FROM solutions_metaensemble WHERE ' + filter_name + operator + value;
+            raw_query = 'SELECT * FROM api_metaensemble WHERE ' + filter_name + operator + value;
             if value == '':
                 meta_ensembles = MetaEnsemble.objects.all()
             else:

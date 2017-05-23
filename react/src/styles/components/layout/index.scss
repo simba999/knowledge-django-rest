@@ -16,6 +16,15 @@
   overflow: auto;
 }
 
+.layout__aside--rborder {
+    padding-right: 20px;
+    border-right: 2px solid #e0e2e5;
+}
+
 .layout__header {
   margin-bottom: 20px;
+}
+
+.laytout__header--text {
+  font-size: 1.6em;
 }

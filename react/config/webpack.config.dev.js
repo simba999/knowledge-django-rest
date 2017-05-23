@@ -22,7 +22,7 @@ const config = {
 		// 	}
 		// },
 		port: PORT,
-		contentBase: path.join(__dirname, '../../public'),
+		contentBase: path.join(__dirname, '../public'),
 		historyApiFallback: true,
 		hot: true,
 		publicPath: "/"

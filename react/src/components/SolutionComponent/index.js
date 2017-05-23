@@ -3,7 +3,12 @@ import React, {
   PropTypes
 }                       							from 'react';
 import {connect} 									from 'react-redux';
-import {fetchSolutionHome, setSolutionParentId} 								from '../../actions/solution';
+import {
+  	fetchSolution, 
+  	setSolutionParentId,
+  	setSolutionData,
+  	setCategoryName
+} 													from '../../actions/solution';
 import solutionApi 									from '../../api/solutionApi';
 
 function mapStateToProps(state) {
@@ -16,9 +21,11 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    fetchSolutionHome: (id) => dispatch(fetchSolutionHome(id)),
+    fetchSolution: (id) => dispatch(fetchSolution()),
+    setCategoryName: (categoryName) => dispatch(setCategoryName(categoryName)),
     fetchCategories: () => dispatch(fetchCategories()),
-    setSolutionParentId: () => dispatch(setSolutionParentId())
+    setSolutionParentId: () => dispatch(setSolutionParentId()),
+    setSolutionData: (data) => dispatch(setSolutionData(data))
   };
 }
 
@@ -32,14 +39,12 @@ class SolutionComponent extends React.Component {
 			solutionByCategory: []
 		}
 
-		this.divideByCategory = this.divideByCategory.bind(this);
-		// this.customSolution = this.customSolution.bind(this);	
+		this.divideByCategory = this.divideByCategory.bind(this);	
 	}
 
 	componentWillMount() {
-		const { fetchSolutionHome, fetchCategories } = this.props;
-		
-		fetchSolutionHome(1);
+		const { fetchSolution, fetchCategories } = this.props;
+		fetchSolution();
 	}
 
 	componentWillReceiveProps(nextProps, prevProps) {
@@ -58,29 +63,47 @@ class SolutionComponent extends React.Component {
 	divideByCategory(solutionArr) {
 		let categoryList = [];
 		let categoryIdList = []
-		console.log("solutionArr: ", solutionArr)
-		for (let category in solutionArr) {
-			console.log("parentCategory: ", category["Category"]);
+		for (let item in solutionArr) {
+			let tempArr = {};
 
-			for (let parentCategory in category["Category"]) {
+			// check if the input item belongs to the exixting list.
+			if ( categoryIdList.includes(solutionArr[item]['category']['id']) == false ) {
+				tempArr['categoryId'] = solutionArr[item]['category']['id'];
+				tempArr['count'] = 1;
+				tempArr['categoryName'] = solutionArr[item]['category']['name'];
+				tempArr['id'] = solutionArr[item]['id']
 
+				if (solutionArr[item]['status'] == -1) {
+					tempArr['request'] = 1;
+				} 
+				else {
+					tempArr['request'] = 0;
+				}
+
+				categoryList.push(tempArr);
+				categoryIdList.push(tempArr['categoryId'])
 			}
-			tempCategory = {}
-			tempCategory['id'] = category['id']
-			tempCategory['name'] = category['name']
-			categoryList.push(tempCategory)
-			// for (childCategory in category) {
+			else {
+				for (let list in categoryList ) {
+					if (solutionArr[item]['category']['id'] == categoryList[list]['categoryId']) {
+						categoryList[list]['categoryId'] = solutionArr[item]['category']['id'];
+						categoryList[list]['count'] += 1;
 
-			// }
+						if (solutionArr[item]['status'] == -1) {
+							categoryList[list]['request'] += 1;
+						}
+					}
+				}
+			}
 		}
-
 		this.setState({solutionByCategory: categoryList});
 	}
 
-	customSolution(id) {
-		this.props.setSolutionParentId(id)
+	customSolution(id, categoryName) {
+		// this.props.setSolutionParentId(id)
+		this.props.setCategoryName(categoryName);
 		window.location = '/custom-solution' + '/' + id;
-	}
+	}	
 
 	render() {
 		return (
@@ -115,7 +138,7 @@ class SolutionComponent extends React.Component {
 								:
 									""
 								}
-								<div className="solution-library__title" sid={solution.id} onClick={(event) => this.customSolution(solution.id, this)}> <span> { solution.categoryName } </span> </div>
+								<div className="solution-library__title" sid={solution.id} onClick={(event) => this.customSolution(solution.categoryId, solution.categoryName, this)}> <span> { solution.categoryName } </span> </div>
 								<div className="solution-library__count">
 									<div>
 										<span className="solution-library-count__number"> {solution.count} </span> Solutions 

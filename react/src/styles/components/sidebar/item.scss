@@ -39,3 +39,11 @@
   font-size: 1.4rem;
   font-weight: bold;
 }
+
+.sidebar-rect:hover {
+  background-color: $color-bg-orange--faded;
+  
+  span {
+    color: #fe763a;
+  }
+}

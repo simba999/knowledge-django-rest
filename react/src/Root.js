@@ -9,6 +9,7 @@ import Header 						from './components/Header';
 import CustomSolutionComponent 		from './components/CustomSolutionComponent';
 import SolutionComponent 			from './components/SolutionComponent';
 import SolutionDetailComponent		from './components/SolutionDetailComponent';
+import ResultDetailComponent		from './components/ResultDetailComponent';
 
 import "./styles/root.scss";
 import {Switch, Route} 				from "react-router";
@@ -39,6 +40,7 @@ export default class Root extends React.Component {
 							  <Route path="/solution" component={SolutionComponent}/>
 							  <Route path="/solution-detail" component={SolutionDetailComponent}/>
 							  <Route path="/custom-solution" component={CustomSolutionComponent}/>
+							  <Route path="/result-detail" component={ResultDetailComponent}/>
 							  <Route path="/my-dashboard" component={MyDashboardPage}/>
 							  <Route path="/my-solutions" component={MySolutionsPage}/>
 							  <Route path="/settings" component={SettingsPage}/>

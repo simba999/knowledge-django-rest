@@ -36,7 +36,7 @@ $sidebar-padding--horizontal: 25px;
 
 .sidebar-rect {
     width: 20em;
-    height: 10em;
+    height: 8em;
     margin-bottom: 20px;
     position: relative;
     background-color: #FFF;
@@ -45,8 +45,12 @@ $sidebar-padding--horizontal: 25px;
 
     span {
       margin: auto;
+      text-align: center;
+      font-size: 1.6em;
     }
 }
+
+
 
 
 @import 'item';

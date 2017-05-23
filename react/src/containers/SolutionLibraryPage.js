@@ -1,10 +1,10 @@
 import React, {
   Component,
   PropTypes
-}                                 from 'react';
-import {connect} from 'react-redux';
+}                                 			from 'react';
+import {connect} 							from 'react-redux';
 import {fetchSolution, fetchCategories} 	from '../actions/solution';
-import SolutionComponent from '../components/SolutionComponent';
+import SolutionComponent 					from '../components/SolutionComponent';
 
 function mapStateToProps(state) {
 	// console.log("AA: ", state);
