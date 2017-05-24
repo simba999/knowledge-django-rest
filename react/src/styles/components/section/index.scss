@@ -41,7 +41,7 @@
   /*width: 30%;*/
   flex: 0 0 200px;
   padding-right: 20px;
-  border-right: 1px solid #e0e2e5;
+  border-right: 1px solid $color-bg-gray;
 }
 
 .separator {
@@ -162,10 +162,51 @@
 	color: #3a3e4a;
 }
 
+.section__title {
+	display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    .uppercase {
+    	font-size: 1.4em;
+	    margin-top: 20px;
+	    background: white;
+	    padding: 15px 0;
+	    color: $color-text-gray;
+    }
+}
+
+.section__additional {
+	display: flex;
+}
+
+.section-additional__column {
+	flex-grow: 1;
+}
+
+.section-additional__column-left {
+	flex-grow: 1;
+	margin-right: 10px;
+}
+
+.section-additional-column__item {
+	font-size: 1.4em;
+    margin-top: 5px;
+    background: white;
+    padding: 15px 0;
+}
+
 .table {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
+}
+
+.table-row {
+	padding: 10px 0;
+	background-color: #ffffff;
+	display: flex;
+	margin-right: 10px;
 }
 
 .table__header {
@@ -175,9 +216,8 @@
     color: #9099ae;
 
     .table-row {
-		padding: 10px 0;
 		background-color: transparent;
-		display: inline-flex;
+		/*display: inline-flex;*/
 	}
 }
 
@@ -207,18 +247,14 @@
 		color: #ffffff;
 		background-color: $color-bg-orange;
 		border-color: $color-bg-orange;
+		cursor: pointer;
 	}
 }
 
 .table-group {
 	margin-bottom: 10px;
 	display: flex;
-
-	.table-row {
-		padding: 10px 0;
-		background-color: #ffffff;
-		display: inline-flex;
-	}
+	cursor: pointer;
 }
 
 .table-col--name {
@@ -230,8 +266,72 @@
 }
 
 .table-col--date {
+	margin-right: 40px;
+	flex-basis: 75px;
+}
+
+.table-col--score {
+    flex-basis: 50px;
+    margin-right: 20px;
+    border-radius: 4px;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.table-col--view {
+	flex-basis: 60px;
 	margin-right: 10px;
+}
+
+.table-col-score--increase {
+    color: #66bb6a;
+}
+
+.table-col-score--increase:after {
+    content: "\2191";
+}
+
+.table-col-score:after {
+    margin-left: 5px;
+    font-size: 1.6rem;
+}
+
+.table-col-score--decrease {
+	color: #f54254;
+}
+
+.table-col-score--decrease:after {
+    content: "\2193";
+}
+
+.table-col-score--warning {
+    color: #fe763a;
+    background-color: #fff8f5;
+}
+
+.table-col-score--warning:after {
+    content: "!";
+}
+
+.table-col-score--stable {
+    color: #42a5f5;
+}
+
+.table-col--compare {
+	width: 60px;
+	display: flex;
 	flex-grow: 1;
+	justify-content: center;
+}
+
+.table-col-checkbox {
+    width: 25px;
+    height: 25px;
+    position: relative;
+    border: 1px solid #e0e2e5;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: .2s;
 }
 
 .table-col-view {

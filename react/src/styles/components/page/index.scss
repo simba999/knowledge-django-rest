@@ -8,21 +8,24 @@
     left: 45%;
     width: 400px;
     background: white;
-    height: 250px;
+    height: 350px;
 }
 
 .close {
 	float: right;
 }
 
-.header__text {
-	/*display: flex;*/
+.header-text {
+	border-bottom: 2px solid $color-bg-gray;
+	margin-bottom: 10px;
 }
 
 .header-text__title {
 	font-size: 2em;
 	text-align: center;
 	margin-top: 20px;
+	margin-bottom: 20px;
+	color: $color-text-gray-dark;
 }
 
 .header-text__close-button {
@@ -41,4 +44,121 @@
 
 .btn-icon--remove {
 	background-image: url('http://localhost:8080/images/remove_icon.png');
+	cursor: pointer;
+}
+
+.content-text {
+	margin-top: 30px;
+}
+
+.content-text__item {
+	margin-bottom: 30px;
+}
+
+.content-text__title {
+	font-size: 1.4em;
+	padding-left: 20px;
+	color: $color-text-gray;
+	margin-bottom: 10px;
+	text-transform: uppercase;
+}
+
+.content-text__content {
+	display: flex;
+	padding-left: 20px;
+}
+
+.content-text-content__rect {
+	margin-right: 15px;
+	font-size: 1.4em;
+	border: 1px solid $color-bg-gray;
+	flex-basis: 100px;
+    align-items: center;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    text-transform: capitalize;
+    cursor: pointer;
+}
+
+.content-text-content__rect:hover {
+	color: $color-bg-orange;
+	border-color: $color-bg-orange;
+}
+
+.content-text-content__rect--selected {
+	color: $color-bg-orange;
+	border-color: $color-bg-orange;
+}
+
+.btn-footer-text {
+	background: $color-bg-orange;
+	color: #ffffff;
+    display: flex;
+    justify-content: center;
+    width: 200px;
+    align-items: center;
+    margin: auto;
+    height: 40px;
+    font-size: 1.8em;
+    border-radius: 20px 20px;
+    cursor: pointer;
+}
+
+.section__detail {
+	display: inline-flex;
+}
+
+.section-detail__description {
+	font-size: 1.8em;
+    margin-right: 20px;
+    width: 75%;
+    background-color: white;
+}
+
+.section-detail__content {
+	font-size: 1.8em;
+	background-color: white;
+	width: 25%;
+}
+
+#caegory_info {
+	padding-top: 20px;
+}
+
+.content-item {
+	margin-bottom: 20px;
+	padding-left: 20px;
+}
+
+.content-item__title {
+	color: $color-bg-gray;
+	text-transform: uppercase;
+	margin-bottom: 5px;
+}
+
+.content-item__content {
+
+}
+
+.uppercase {
+	text-transform: uppercase;
+}
+
+.separator-content {
+	display: inline-block;
+}
+
+.separator-content:before {
+	height: 1px;
+	width: 9999px;
+	right: 100%;
+}
+
+.light-gray-color {
+	color: $color-text-gray-dark;
+}
+
+.orange-color {
+	color: $color-bg-orange;
 }

@@ -103,6 +103,11 @@ class SolutionDetailComponent extends React.Component {
 		window.location = '/result-detail'
 	}
 
+	gotoSubSolution() {
+		console.log("SubSolution123");
+		window.location = '/subsolution';
+	}
+
 	render() {
 		return (
 			<div className="section">
@@ -128,7 +133,7 @@ class SolutionDetailComponent extends React.Component {
 				<div className="section__body">
 					<div className="section-columns">
 						<div className="section-column section-column-left">
-				          	<div className="sidebar__item">
+				          	<div className="sidebar__item" onClick={() => this.gotoSubSolution()}>
 				          		<div className="sidebar-rect">
 				          			<span> NO PURCHASE IN PRODUCT </span>
 				          		</div>
@@ -194,7 +199,7 @@ class SolutionDetailComponent extends React.Component {
 									Here represented all the request for the NO PURCHASE IN TARGETED MONTH solution
 								</div>
 								<div className="separator">
-									<div className="btn-label">
+									<div className="btn-label separator-content">
 										<span>8</span>
 										Alogorithms/Models
 									</div>

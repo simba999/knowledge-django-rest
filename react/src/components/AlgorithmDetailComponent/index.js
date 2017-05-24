@@ -26,7 +26,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-class ResultDetailComponent extends React.Component {
+class AlgorithmDetailComponent extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 
@@ -147,11 +147,11 @@ class ResultDetailComponent extends React.Component {
 							</div>
 						</div>
 						<div className="section-header__item section-header__item--forced-center">
-							<div className="section-header-circle">Request</div>
+							<div className="section-header-circle">101.74</div>
 						</div>
 						<div className="section-header__item section-header__item--right">
 							<div className="section__buton">
-								<div className="btn" onClick={() => this.openModal()}>Selection Solution</div>
+								<div className="btn" onClick={() => this.openModal()}>Improve Algorithm</div>
 							</div>
 						</div>
 					</div>
@@ -160,10 +160,10 @@ class ResultDetailComponent extends React.Component {
 					<div className="section_description">
 						<div className="section-description">
 							<div className="section-description__title">
-								Request #3 Type and Title
+								Customers with more than 2 purchases (GMLER)
 							</div>
 							<div className="section-description__text">
-								Requested Date: <span> 04/12/2017 </span>
+								Last Run: <span> 04/12/2017 </span>
 							</div>
 							<div className="section-description__separator separator"></div>
 						</div>
@@ -195,6 +195,45 @@ class ResultDetailComponent extends React.Component {
 									<div className="content-item__title">library</div>
 									<div className="content-item__content">details of library</div>
 								</div>
+							</div>
+						</div>
+					</div>
+					<div className="section__title">
+						<div className="uppercase">data components:</div>
+					</div>
+					<div className="section__additional">
+						<div className="section-additional__column-left">
+							<div className="section-additional-column__item">
+								<span className="orange-color">&bull; </span>
+								<span> Client's Customer Transaction Data </span>
+								<span className="light-gray-color">propriety</span>
+							</div>
+							<div className="section-additional-column__item">
+								<span className="orange-color">&bull; </span>
+								<span> Client's Customer Transaction Data </span>
+								<span className="light-gray-color">propriety</span>
+							</div>
+							<div className="section-additional-column__item">
+								<span className="orange-color">&bull; </span>
+								<span> Client's Customer Transaction Data </span>
+								<span className="light-gray-color">propriety</span>
+							</div>
+						</div>
+						<div className="section-additional__column">
+							<div className="section-additional-column__item">
+								<span className="orange-color">&bull; </span>
+								<span> Client's Customer Transaction Data </span>
+								<span className="light-gray-color">propriety</span>
+							</div>
+							<div className="section-additional-column__item">
+								<span className="orange-color">&bull; </span>
+								<span> Client's Customer Transaction Data </span>
+								<span className="light-gray-color">propriety</span>
+							</div>
+							<div className="section-additional-column__item">
+								<span className="orange-color">&bull; </span>
+								<span> Client's Customer Transaction Data </span>
+								<span className="light-gray-color">propriety</span>
 							</div>
 						</div>
 					</div>
@@ -239,7 +278,7 @@ class ResultDetailComponent extends React.Component {
 	}
 }
 
-ResultDetailComponent.propTypes = {
+AlgorithmDetailComponent.propTypes = {
 	parentID: PropTypes.string.isRequired,
 }
 
@@ -248,4 +287,4 @@ ResultDetailComponent.propTypes = {
 export default connect(
 	mapStateToProps,
   	mapDispatchToProps
-)(ResultDetailComponent);
+)(AlgorithmDetailComponent);
