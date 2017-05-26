@@ -172,7 +172,7 @@ class SubSolutionComponent extends React.Component {
 								</div>
 								<div className="separator">
 									<div className="btn-label separator-content">
-										<span>8</span>
+										<span className="orange-color"> 8 </span>
 										Alogorithms/Models
 									</div>
 								</div>

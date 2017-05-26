@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import get_list_or_404, get_object_or_404
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User as AdminMember
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -13,6 +14,7 @@ from rest_framework import authentication
 from rest_framework import exceptions
 from rest_framework.decorators import api_view
 from api.models import Solution, Category, Performance, Notebook, DataSet, Price, Ensemble
+
 from api.models import User, MetaEnsemble, Commission, Vertical, Library
 from api.serializers import SolutionSerializer, NotebookSerializer, SolutionAllSerializer, AnomalySerializer
 from api.serializers import UserSerializer, MetaEnsembleSerializer, DatasetSerializer, NotebookAllSerializer
@@ -655,19 +657,21 @@ class FilterNotebookView(APIView):
 # User Begin
 # @login_required()
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = AdminMember.objects.all()
     serializer_class = AdminMemberSerializer
     # permission_classes = (IsAuthenticated,)
 
     def list(self, request):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        users = AdminMember.objects.all()
+        serializer = AdminMemberSerializer(users, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         if request.user.is_authenticated():
-            request.data['password'] = make_password(password)
-            serializer = UserSerializer(data=request.data)
+            request.data['password'] = make_password(request.data['password'])
+            print "RequestData: "
+            print request.data
+            serializer = AdminMemberSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)

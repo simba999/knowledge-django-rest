@@ -156,6 +156,23 @@
     color: #9099ae;
 }
 
+.section__detail {
+    display: flex;
+}
+
+.section-detail__description {
+    font-size: 1.8em;
+    margin-right: 20px;
+    /*width: 75%;*/
+    background-color: white;
+}
+
+.section-detail__content {
+    font-size: 1.8em;
+    background-color: white;
+    /*width: 25%;*/
+}
+
 .section-description__title {
 	margin-bottom: 10px;
 	font-size: 2em;
@@ -191,9 +208,12 @@
 
 .section-additional-column__item {
 	font-size: 1.4em;
-    margin-top: 5px;
+    margin-top: 10px;
     background: white;
     padding: 15px 0;
+    .orange-color {
+        padding-left: 15px;
+    }
 }
 
 .table {
@@ -234,6 +254,7 @@
 	flex-basis: 0;
 	align-items: center;
 	font-size: 1.4em;
+    color: $color-text-gray-dark;
 }
 
 .table-col--label {
@@ -247,8 +268,23 @@
 		color: #ffffff;
 		background-color: $color-bg-orange;
 		border-color: $color-bg-orange;
-		cursor: pointer;
 	}
+    .table-col-training {
+        color: $color-bg-orange;
+    }
+}
+
+.table-col-new {
+    padding: 6px 10px;
+    border: 1px solid green;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    background-color: green;
+    color: white;
+/*    text-transform: capitalize;*/
+    text-decoration: none;
+    transition: .2s;
 }
 
 .table-group {
@@ -263,6 +299,7 @@
 	font-size: 1.4em;
 	font-weight: 700;
 	line-height: 1.3;
+    color: $color-text-gray-dark;
 }
 
 .table-col--date {
@@ -334,7 +371,7 @@
     transition: .2s;
 }
 
-.table-col-view {
+.table-col-view, .table-col-training {
 	padding: 6px 10px;
     border: 1px solid #9099ae;
     border-radius: 20px;

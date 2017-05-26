@@ -123,11 +123,6 @@ class SolutionDetailComponent extends React.Component {
 								Filter by: Most Recent
 							</div>
 						</div>
-						<div className="section__button">
-							<div className="btn">
-								+ Custom Solutions
-							</div>
-						</div>
 					</div>
 				</div>
 				<div className="section__body">
@@ -191,7 +186,7 @@ class SolutionDetailComponent extends React.Component {
 					    </div>
 					
 						<div className="section-column section-column-right">
-							<div className="section-column__header">
+							<div className="section-column__header light-gray-color">
 								<div className="section-column-header">
 									Requests for Soltutions (RFS)
 								</div>
@@ -200,7 +195,7 @@ class SolutionDetailComponent extends React.Component {
 								</div>
 								<div className="separator">
 									<div className="btn-label separator-content">
-										<span>8</span>
+										<span className="orange-color"> 8 </span>
 										Alogorithms/Models
 									</div>
 								</div>
@@ -257,7 +252,10 @@ class SolutionDetailComponent extends React.Component {
 										<div className="table-group">
 											<div className="table-row table-row--fluid">
 												<div className="table-col table-col--label"></div>
-												<div className="table-col table-col--name">Request #1 type and Title</div>
+												<div className="table-col table-col--name">
+													Request #1 type and Title &nbsp;&nbsp;
+													<span className="table-col-new">NEW</span>
+												</div>
 												<div className="table-col table-col--date">01-12-2017</div>
 												<div className="table-col table-col--label">Category #1</div>
 												<div className="table-col table-col--label">

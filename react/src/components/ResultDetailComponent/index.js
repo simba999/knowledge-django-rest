@@ -175,7 +175,6 @@ class ResultDetailComponent extends React.Component {
 							Sure, there are several way to recognize images and detect them by a number of features. But what i am worrying about is executive time to detect duplication among 600000. It take a lot of stuff.
 							Sure, there are several way to recognize images and detect them by a number of features. But what i am worrying about is executive time to detect duplication among 600000. It take a lot of stuff.
 							Sure, there are several way to recognize images and detect them by a number of features. But what i am worrying about is executive time to detect duplication among 600000. It take a lot of stuff.
-
 						</div>
 						<div className="section-detail__content">
 							<div className="section-detail-content__item" id="caegory_info">

@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^users/(?P<user_id>[0-9]+)/(?P<type>\w+)$', views.UserViewTypesByUser.as_view()),
     url(r'^users/solution/library/(?P<solution_id>[0-9]+)/$', views.UserSolutionLibraryViewById.as_view()),
     url(r'^users/(?P<user_id>[0-9]+)/commissions/(?P<type>\w+)/$', views.UsersCommissionsSetView.as_view()),
+
     
     url(r'^notebooks/(?P<notebook_id>[0-9]+)/(?P<type>\w+)$', views.NotebookViewTypesById.as_view()),
     url(r'^filter/notebook/$', views.FilterNotebookView.as_view()),

@@ -127,13 +127,31 @@ class AlgorithmDetailComponent extends React.Component {
 		}
 	}
 
-	openModal() {
-		this.setState({openModal: true});
+	openModal(status) {
+		let elem = document.querySelector(".page");
+		elem.style.background = "#e0e2e5";
+		if (status == 0) {
+			console.log('It is 0');
+			this.setState({openModal: true, existingOne: true});
+		}
+		else {
+			console.log('It is 1');
+			this.setState({openModal: true, existingOne: false});
+		}																																																																																																																																																							
+		console.log('Existing: ', this.state.existingOne);
 	}
 
 	closeModal()
 	{
 	 	this.setState({openModal: false});
+	}
+
+	toolTip(event) {
+		console.log("ToolTip: ", event.screenX, ": Y= ", event.screenY);
+		let positionX = event.screenX-40;
+		let postionY = event.screenY-120;
+		tooltip.pop(this, '#sub1', {offsetX:event.screenX, offsetY:postionY, smartPosition:false});
+		// onMouseOver={this.toolTip.bind(this)}
 	}
 
 	render() {
@@ -151,7 +169,14 @@ class AlgorithmDetailComponent extends React.Component {
 						</div>
 						<div className="section-header__item section-header__item--right">
 							<div className="section__buton">
-								<div className="btn" onClick={() => this.openModal()}>Improve Algorithm</div>
+								<div className="dropdown">
+									<div className="dropbtn">Improve Algorithm</div>
+									<div className="dropdown-content">
+										<a className="btn-modal-open" onClick={() => this.openModal(0)}>Start with existing Code</a>
+										<div className="line-separator"> </div>
+										<a className="btn-modal-open" onClick={() => this.openModal(1)}>Create a new Algorithm</a>
+									</div>	
+								</div>
 							</div>
 						</div>
 					</div>
@@ -238,10 +263,16 @@ class AlgorithmDetailComponent extends React.Component {
 						</div>
 					</div>
 				</div>
+				<div style={{'display': 'None'}}>
+					<div id="sub1">
+						<a>ABC</a>
+						<a>ABC2</a>
+					</div>
+				</div>
 				<Modal
 			        show={this.state.openModal}
 			        onHide={this.closeModal}
-			        className="createSolutionDialog"
+			        className="complete-detail-form"
 			        aria-labelledby="ModalHeader">
 			        <Modal.Body>
 			          <div className="header-text">
@@ -249,6 +280,20 @@ class AlgorithmDetailComponent extends React.Component {
 			            	<label className="btn-icon btn-icon--remove" onClick={() => this.closeModal()}></label>
 			            </div>
 			            <div className="header-text__title">Create a solution</div>
+			            <div className="separator alogorithm-box">			            	
+		            	{
+		            		this.state.existingOne?
+			            		<div className="separator-content" style={{'display': 'flex'}}>
+			            			<div className="rect-item orange-color">Existing Code</div>
+		            				<div className="rect-item">New Algorithm</div>
+	            				</div>
+	            			:
+	            				<div className="separator-content" style={{'display': 'flex'}}>
+			            			<div className="rect-item">Existing Code</div>
+		            				<div className="rect-item orange-color">New Algorithm</div>
+	            				</div>
+		            	}
+			            </div>
 			          </div>
 			          <div className="content-text">
 				          <div className="content-text__item">

@@ -3,6 +3,7 @@ from api.models import User
 from api.models import Solution, Category, Notebook, DataSet, Price, Performance
 from api.models import MetaEnsemble, Ensemble, Commission, Library, Vertical
 from django.contrib.auth.models import User as AdminMember
+import json
 
 
 class SolutionSerializer(serializers.ModelSerializer):
@@ -81,20 +82,32 @@ class UserSerializer(serializers.ModelSerializer):
                 'potential_place', 'potential_earning', 'total_commission', 'total_purchase', 'proj_earning_to_date', 'proj_earning_overall',
                 'proj_place_to_date', 'proj_place_overall', 'noteworthy', 'redeem_state', 'datascientist_reg', 'is_authenticated'
                 )
+        depth = 3
+
+
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdminMember
+        fields = ('username', 'password', 'email')
+        depth = 3
 
 
 class AdminMemberSerializer(serializers.ModelSerializer):
-    users = UserSerializer()
+    user = UserSerializer()
+    # users = TrackListingField()
 
     class Meta:
         model = AdminMember
-        fields = ('username', 'password', 'email', 'users')
+        fields = ('username', 'password', 'email', 'user')
 
     def create(self, validated_data):
-        users_data = validated_data.pop('users')
+        user_data = validated_data.pop('user')
+        print "User_DATA"
+        print json.loads(json.dumps(user_data))
+        print "**** Validate *****"
+        print validated_data
         user = AdminMember.objects.create(**validated_data)
-        for user_data in users_data:
-            User.objects.create(user=user, **user_data)
+        User.objects.create(user=user, **user_data)
         return user
 
 
