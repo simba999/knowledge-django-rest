@@ -233,6 +233,7 @@
     font-size: 16px;
     border-radius: 20px;
     cursor: pointer;
+    margin-bottom: 15px;
 }
 
 .dropdown {
@@ -289,4 +290,18 @@
 .rect-item {
     border: 1px solid $color-bg-gray;
     padding: 10px 15px;
+}
+
+.modal-backdrop {
+    opacity: 0.75;
+    z-index: 1040;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.btn-modal-open {
+    background-color: #f9f9f9;
 }

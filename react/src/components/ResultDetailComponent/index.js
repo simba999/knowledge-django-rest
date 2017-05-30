@@ -38,6 +38,7 @@ class ResultDetailComponent extends React.Component {
 			closeModal: false
 		}
 		console.log("Contstructor", this.props.location.pathname);
+		this.closeModal = this.closeModal.bind(this);
 	}
 
 	componentWillMount() {
@@ -50,7 +51,7 @@ class ResultDetailComponent extends React.Component {
 
 	solutionDetail(id) {
 		console.log("Custom solution event call");
-		window.location = '/solution-detail';
+		this.context.router.history.push("/solution-detail'");
 	}
 	componentDidMount(nextProps, prevProps) {
 		// let solutionData = this.props.data;
@@ -121,10 +122,7 @@ class ResultDetailComponent extends React.Component {
 
 	customSolution(id) {
 		console.log("Id: ", id);
-		window.location = '/solution-detail/' + id
-		if (typeof id == 'undefined') {
-			window.location = '/solution-detail'
-		}
+		this.context.router.history.push("/solution-detail/" + id)
 	}
 
 	openModal() {
@@ -206,7 +204,7 @@ class ResultDetailComponent extends React.Component {
 			        <Modal.Body>
 			          <div className="header-text">
 			          	<div className="header-text__close-button">
-			            	<label className="btn-icon btn-icon--remove" onClick={() => this.closeModal()}></label>
+			            	<label className="btn-icon btn-icon--remove" onClick={this.closeModal}></label>
 			            </div>
 			            <div className="header-text__title">Create a solution</div>
 			          </div>
@@ -241,6 +239,10 @@ class ResultDetailComponent extends React.Component {
 ResultDetailComponent.propTypes = {
 	parentID: PropTypes.string.isRequired,
 }
+
+ResultDetailComponent.contextTypes = {
+  router: React.PropTypes.object
+};
 
 // export default CustomSolutionComponent;
 

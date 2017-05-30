@@ -100,7 +100,7 @@ class SubSolutionComponent extends React.Component {
 	}
 
 	gotoAlgorithmPage() {
-		window.location = '/algorithm-detail'
+		this.context.router.history.push("/algorithm-detail");
 	}
 
 
@@ -283,6 +283,10 @@ class SubSolutionComponent extends React.Component {
 SubSolutionComponent.propTypes = {
 	parentID: PropTypes.string.isRequired,
 }
+
+SubSolutionComponent.contextTypes = {
+  router: React.PropTypes.object
+};
 
 export default connect(
 	mapStateToProps,

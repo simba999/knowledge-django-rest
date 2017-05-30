@@ -10,6 +10,7 @@ import {
   	setCategoryName
 } 													from '../../actions/solution';
 import solutionApi 									from '../../api/solutionApi';
+import {withRouter} 								from "react-router-dom";
 
 function mapStateToProps(state) {
 	console.log("state: ", state);
@@ -102,7 +103,9 @@ class SolutionComponent extends React.Component {
 	customSolution(id, categoryName) {
 		// this.props.setSolutionParentId(id)
 		this.props.setCategoryName(categoryName);
-		window.location = '/custom-solution' + '/' + id;
+		this.context.router.history.push("/custom-solution/" + id);
+		// this.props.history.push("/custom-solution" + id);
+		// window.location = '/custom-solution' + '/' + id;
 	}	
 
 	render() {
@@ -155,10 +158,16 @@ class SolutionComponent extends React.Component {
 
 SolutionComponent.propTypes = {
 	data: PropTypes.object,
-	categories: PropTypes.object
-}
+	categories: PropTypes.object,
+};
+
+SolutionComponent.contextTypes = {
+  router: React.PropTypes.object
+};
 
 export default connect(
 	mapStateToProps,
   	mapDispatchToProps
 )(SolutionComponent);
+
+// export withRouter(SolutionComponent);

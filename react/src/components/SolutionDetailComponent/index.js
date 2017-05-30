@@ -100,12 +100,11 @@ class SolutionDetailComponent extends React.Component {
 	}
 
 	gotoResultPage() {
-		window.location = '/result-detail'
+		this.context.router.history.push("/result-detail");
 	}
 
 	gotoSubSolution() {
-		console.log("SubSolution123");
-		window.location = '/subsolution';
+		this.context.router.history.push("/subsolution");
 	}
 
 	render() {
@@ -400,6 +399,10 @@ class SolutionDetailComponent extends React.Component {
 SolutionDetailComponent.propTypes = {
 	parentID: PropTypes.string.isRequired,
 }
+
+SolutionDetailComponent.contextTypes = {
+  router: React.PropTypes.object
+};
 
 // export default SolutionDetailComponent;
 

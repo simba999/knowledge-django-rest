@@ -56,7 +56,8 @@
 #mcOverlay 
 {
     background-color: rgba(0,0,0,0.5);
-    display:none;top:0;left:0;width:100%;height: 100%;overflow:visible;z-index:4; 
+    display: none;
+    top:0;left:0;width:100%;height: 100%;overflow:visible;z-index:1; 
 }
 #mcTooltip img {border:0;vertical-align:middle;}
 

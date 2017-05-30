@@ -72,7 +72,13 @@ export function setSolutionData(data) {
 
 export function fetchSolution() {
 	return (dispatch) => {
-		return fetch('http://localhost:8000/solution')
+		return fetch('http://localhost:8000/solution', {
+			mode: 'cors',
+			headers: new Headers({
+				'Accept': 'application/json',
+				'Access-Control-Allow-Origin':'*',
+				'Content-Type': 'application/json'
+		})
 			.then(response => response.json())
 			.then(json => {
 				dispatch(getSolutionLibraryByUser(json))

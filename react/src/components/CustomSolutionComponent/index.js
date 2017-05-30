@@ -47,8 +47,9 @@ class CustomSolutionComponent extends React.Component {
 
 	solutionDetail(id) {
 		console.log("Custom solution event call");
-		window.location = '/solution-detail';
+		this.context.router.history.push("/solution-detail");
 	}
+
 	componentDidMount(nextProps, prevProps) {
 		// let solutionData = this.props.data;
 		// console.log("Solutions: ", this.props.data);
@@ -69,7 +70,7 @@ class CustomSolutionComponent extends React.Component {
 			// this.divideByCategory(this.state.solutions);
 		}
 		// console.log("Solutions: ", nextProps.data);
-		// this.divideByCategory(solutionData);
+		this.divideByCategory(solutionData);
 	}
 
 	divideByCategory(solutionArr) {
@@ -118,10 +119,7 @@ class CustomSolutionComponent extends React.Component {
 
 	customSolution(id) {
 		console.log("Id: ", id);
-		window.location = '/solution-detail/' + id
-		if (typeof id == 'undefined') {
-			window.location = '/solution-detail'
-		}
+		this.context.router.history.push("/solution-detail");
 	}
 
 	render() {
@@ -175,6 +173,11 @@ class CustomSolutionComponent extends React.Component {
 CustomSolutionComponent.propTypes = {
 	parentID: PropTypes.string.isRequired,
 }
+
+CustomSolutionComponent.contextTypes = {
+  router: React.PropTypes.object
+};
+
 
 // export default CustomSolutionComponent;
 

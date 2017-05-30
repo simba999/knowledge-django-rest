@@ -38,6 +38,7 @@ class AlgorithmDetailComponent extends React.Component {
 			closeModal: false
 		}
 		console.log("Contstructor", this.props.location.pathname);
+		this.closeModal = this.closeModal.bind(this);
 	}
 
 	componentWillMount() {
@@ -71,8 +72,6 @@ class AlgorithmDetailComponent extends React.Component {
 		else {
 			// this.divideByCategory(this.state.solutions);
 		}
-		// console.log("Solutions: ", nextProps.data);
-		// this.divideByCategory(solutionData);
 	}
 
 	divideByCategory(solutionArr) {
@@ -128,8 +127,12 @@ class AlgorithmDetailComponent extends React.Component {
 	}
 
 	openModal(status) {
-		let elem = document.querySelector(".page");
-		elem.style.background = "#e0e2e5";
+		// let elem = document.querySelector(".layout");
+		// let elem1 = document.querySelector(".layout__main");
+		// console.log("++++++++++++++++: ", document.querySelectorAll(".layout__main div"));
+		// elem.style.background = "#7d7f82";
+		// elem1.style.background = "#7d7f82";
+		// document.querySelectorAll(".layout__main div").style.background === "#7d7f82";
 		if (status == 0) {
 			console.log('It is 0');
 			this.setState({openModal: true, existingOne: true});
@@ -147,7 +150,6 @@ class AlgorithmDetailComponent extends React.Component {
 	}
 
 	toolTip(event) {
-		console.log("ToolTip: ", event.screenX, ": Y= ", event.screenY);
 		let positionX = event.screenX-40;
 		let postionY = event.screenY-120;
 		tooltip.pop(this, '#sub1', {offsetX:event.screenX, offsetY:postionY, smartPosition:false});
@@ -170,7 +172,7 @@ class AlgorithmDetailComponent extends React.Component {
 						<div className="section-header__item section-header__item--right">
 							<div className="section__buton">
 								<div className="dropdown">
-									<div className="dropbtn">Improve Algorithm</div>
+									<div className="btn dropbtn">Improve Algorithm</div>
 									<div className="dropdown-content">
 										<a className="btn-modal-open" onClick={() => this.openModal(0)}>Start with existing Code</a>
 										<div className="line-separator"> </div>
@@ -277,7 +279,7 @@ class AlgorithmDetailComponent extends React.Component {
 			        <Modal.Body>
 			          <div className="header-text">
 			          	<div className="header-text__close-button">
-			            	<label className="btn-icon btn-icon--remove" onClick={() => this.closeModal()}></label>
+			            	<label className="btn-icon btn-icon--remove" onClick={this.closeModal}></label>
 			            </div>
 			            <div className="header-text__title">Create a solution</div>
 			            <div className="separator alogorithm-box">			            	
