@@ -71,5 +71,8 @@ urlpatterns = [
     url(r'^datasets/(?P<dataset_id>[0-9]+)/(?P<type>\w+)$', views.DatasetViewTypesById.as_view()),
     url(r'^ensembles/(?P<ensemble_id>[0-9]+)/(?P<type>\w+)$', views.EnsembleViewTypesById.as_view()),
     url(r'^branch/(?P<type>\w+)/(?P<parent_id>[0-9]+)/$', views.BranchSolutionByParentId().as_view()),
+
+    url(r'solutionnavigation/(?P<vertical_id>[0-9]+)/$', views.SolutionNavigationView().as_view()),
+    url(r'analyticsrecord/(?P<user_id>[0-9]+)/(?P<usergroup_id>[0-9]+)/(?P<verticalID>[0-9]+)/$', views.AnalyticsRecordView.as_view()),
     # url(r'^library/(?P<parent_id>[0-9]+)/$', views.LibraryViewById().as_view()),
 ]

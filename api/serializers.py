@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from api.models import User
 from api.models import Solution, Category, Notebook, DataSet, Price, Performance
-from api.models import MetaEnsemble, Ensemble, Commission, Library, Vertical
+from api.models import MetaEnsemble, Ensemble, Commission, Library, Vertical, SolutionNavigation
 from django.contrib.auth.models import User as AdminMember
 import json
 
@@ -110,7 +110,6 @@ class AdminMemberSerializer(serializers.ModelSerializer):
         User.objects.create(user=user, **user_data)
         return user
 
-
 class MetaEnsembleSerializer(serializers.ModelSerializer):
     class Meta:
         model = MetaEnsemble
@@ -151,15 +150,7 @@ class HomeSerializer(serializers.ModelSerializer):
         model = Category
         fields = ('id', 'name', 'vertical', 'solution', 'library')
 
-# class UserDemoSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('id', 'name', 'email')
-# class AnomalySerializer(serializers.Serializer):
-#     fields = ('id', 'PredictionAccuracyScore', 'ChangefromPrevious', 'PredictedImpact', 'RecordsinFile', 'DateRun')   
-#     id = serializers.IntegerField(read_only=True)
-#     PredictionAccuracyScore = serializers.IntegerField(default=0)
-#     ChangefromPrevious = serializers.IntegerField(default=0)
-#     PredictedImpact = serializers.IntegerField(default=0)
-#     RecordsinFile = serializers.IntegerField(default=0)
-#     DateRun = serializers.DataTimeField(required=False, alllow_blank=True)
+class SolutionNavigationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SolutionNavigation
+        fields = ('vertical', 'cateogry', 'category_child', 'library', 'solution', 'solution_child', 'created_at', 'updated_at')

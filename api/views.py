@@ -6,6 +6,7 @@ from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User as AdminMember
+from django.forms.models import model_to_dict
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -13,12 +14,11 @@ from rest_framework import permissions
 from rest_framework import authentication
 from rest_framework import exceptions
 from rest_framework.decorators import api_view
-from api.models import Solution, Category, Performance, Notebook, DataSet, Price, Ensemble
-
-from api.models import User, MetaEnsemble, Commission, Vertical, Library
+from api.models import Solution, Category, Performance, Notebook, DataSet, Price, Ensemble, AnalyticsRecord
+from api.models import User, MetaEnsemble, Commission, Vertical, Library, SolutionNavigation
 from api.serializers import SolutionSerializer, NotebookSerializer, SolutionAllSerializer, AnomalySerializer
 from api.serializers import UserSerializer, MetaEnsembleSerializer, DatasetSerializer, NotebookAllSerializer
-from api.serializers import CommissionSerializer, AdminMemberSerializer, LibrarySerializer, VerticalSerializer
+from api.serializers import CommissionSerializer, AdminMemberSerializer, LibrarySerializer, VerticalSerializer, SolutionNavigationSerializer
 from api.serializers import CategorySerializer, DatasetSerializer, PriceSerializer, PerformanceSerializer, EnsembleSerializer
 from rest_framework.renderers import JSONRenderer
 import json
@@ -1401,9 +1401,269 @@ class UserHomeView(APIView):
 
     def get(self, request, user_id):
         results = []
-        pdb.set_trace()
         verticals = Vertical.objects.filter(user=user_id)
 
         for vertical in verticals:
             libraries = Library.objects.filter(vetical=vertical.id)
+
+
+class SolutionNavigationView(APIView):
+    def get_category_vertical_id(self, vertical_id):
+        try:
+            return Category.objects.filter(vertical__id=vertical_id)
+        except:
+            return None
+
+    def get_library_id(self, vertical_id):
+        try:
+            return Library.objects.filter(vertical__id=vertical_id)
+        except:
+            return None
+
+    def get_solution_child_by_id(self, id):
+        try:
+            return Solution.objects.filter(parent__pk=id)
+        except Solution.DoesNotExist:
+            return None
+
+    def get_category_child_by_id(self, id):
+        try:
+            return Category.objects.filter(parent__pk=id)
+        except Category.DoesNotExist:
+            return None
+
+    def get_solutions_by_category(self, id):
+        try:
+            return Solution.objects.filter(category__id=id)
+        except:
+            return None
+
+    def get(self, request, vertical_id):
+        # results = []
+        # solution_list = []
+        # item = []
+        # vertical = Vertical.objects.get(id=vertical_id)
+        # if vertical is not None:
+        #     categories = self.get_category_vertical_id(vertical_id)
+        #     for category in categories:
+        #         solutions  = self.get_solutions_by_category(category.id)
+        #         for solution in solutions:
+        #             solution_list.append(solution.id)
+        #             sub_solutions = self.get_solution_child_by_id(solution.id)
+        #             sub_item = {}
+        #             sub_item['vertical'] = vertical_id
+        #             sub_item['category'] = category.id
+        #             sub_item['solution'] = solution.id
+        #             sub_item['solution_child'] = 0
+        #             sub_item['category_child'] = 0
+
+        #             for sub_solution in sub_solutions:
+        #                 if sub_solution.id not in solution_list:
+        #                     sub_categories = sub_solution.categories.all()
+        #                     for sub_category in sub_categories:
+        #                         sub_item['solution_child'] = sub_solution.id
+        #                         sub_item['category_child'] = sub_category.id
+        #                         item.append(sub_item)
+        #             item.append(sub_item)
+        # else:
+        #     item = []
+        # return JsonResponse(item, safe=False)
+
+        try:
+            solution_navigation = SolutionNavigation.objects.get(vertical__id=vertical_id)
+            result = model_to_dict(solution_navigation)
+        except:
+            result = []
+        
+        return JsonResponse(result, safe=False)
+
+class AnalyticsRecordView(APIView):
+    def get_user_by_id(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except:
+            return None
+
+    def get_user_group_by_id(self, user_group_id):
+        try:
+            return UserGroup.objects.get(pk=user_group_id)
+        except:
+            return None
+
+    def get_vertical_by_id(self, id):
+        try:
+            return Vertical.objects.get(vertical__id=id)
+        except:
+            return None
+
+    def get_user_by_id(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except:
+            return None
+
+    def get_solution_parent_by_id(self, id):
+        try:
+            return Solution.objects.filter(parent__pk=id)
+        except Solution.DoesNotExist:
+            return None
+
+    def get_category_parent_by_id(self, id):
+        try:
+            return Category.objects.filter(parent__pk=id)
+        except Category.DoesNotExist:
+            return None
+
+    def get_solutions_by_category(self, id):
+        try:
+            return Solution.objects.filter(category__id=id)
+        except:
+            return None
+
+    def get_category_by_id(self, category_id):
+        try:
+            return Category.objects.get(pk=category_id)
+        except:
+            return None
+
+    def get_library_by_id(self, library_id):
+        try:
+            return Library.objects.get(pk=library_id)
+        except:
+            return None
+
+    def get_solution_by_id(self, solution_id):
+        try:
+            return Solution.objects.get(pk=solution_id)
+        except:
+            return None
+
+    def get_notebook_by_id(self, id):
+        try:
+            return Notebook.objects.get(pk=id)
+        except:
+            return None
+
+    def get_notebook_parent_by_id(self, id):
+        try:
+            return Notebook.objects.get(parent=id)
+        except:
+            return None
+
+    def get_ensemble_by_id(self, id):
+        try:
+            return Ensemble.objects.get(pk=id)
+        except:
+            return None
+
+    def get_metaensemble_by_id(self, id):
+        try:
+            return MetaEnsemble.objects.get(pk=id)
+        except:
+            return None
+
+    def get_performance_by_id(self, id):
+        try:
+            return Performance.objects.get(pk=id)
+        except:
+            return None
+
+    def get_dataset_by_id(self, id):
+        try:
+            return DataSet.objects.get(pk=id)
+        except:
+            return None
+
+    def get(self, request, user_id, usergroup_id, verticalID):
+        try:
+            pdb.set_trace()
+            analytics_records = AnalyticsRecord.objects.get(user__id=user_id, usergroup__id=usergroup_id, vertical__id=verticalID)
+
+            result = model_to_dict(analytics_records)
+        except:
+            result = []
+        
+        return JsonResponse(result, safe=False)
+
+    def post(self, request):
+        record = AnalyticsRecord()
+        user_id = request.data.get('user_id')
+        usergroup_id = request.data.get('usergroup_id')
+        category_id = request.data.get('category_id')
+        category_parent_id = request.data.get('category_parent_id')
+        vertical_id = request.data.get('vertical_id')
+        library_id = request.data.get('library_id')
+        solution_id = request.data.get('solution_id')
+        solution_parent_id = request.data.get('solution_parent_id')
+        notebook_id = request.data.get('notebook_id')
+        notebook_parent_id = request.data.get('notebook_parent_id')
+        dataset_id = request.data.get('dataset_id')
+        ensemble_id = request.data.get('ensemble_id')
+        metaensemble_id = request.data.get('meta_ensemble_id')
+        performance_id = request.data.get('performance_id')
+
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return HttpResponse("Error")
+        else:
+            record.user = user
+
+            usergroup = self.get_user_group_by_id(usergroup_id)
+            if usergroup:
+                record.usergroup = usergroup
+            else:
+                record.usergroup = None
+
+            vertical = self.get_vertical_by_id(vertical_id)
+            record.vertical = vertical if vertical else None
+
+            category = self.get_category_by_id(category_id)
+            record.category = category if category else None
+
+            category_parent = self.get_category_by_id(category_parent_id)
+            record.category_parent = category_parent if category_parent else category_parent
+
+            library = self.get_library_by_id(library_id)
+            record.library = library if library else library
+
+            solution = self.get_solution_by_id(solution_id)
+            if solution:
+                record.solution = solution
+                solution_parent = self.get_solution_by_id(solution_parent_id)
+                if solution_parent:
+                    record.solution_parent = solution_parent
+                else:
+                    record.solution_parent = None
+            else:
+                record.solution = None
+                record.solution_parent = None
+
+            notebook = self.get_notebook_by_id(notebook_id)
+            record.notebook = notebook if notebook else None
+
+            notebook_parent = self.get_notebook_by_id(notebook_parent_id)
+            record.notebook = notebook_parent if notebook_parent else None
+
+            dataset = self.get_dataset_by_id(dataset_id)
+            record.dataset = dataset if dataset else None
+
+            ensemble = self.get_ensemble_by_id(ensemble_id)
+            record.ensemble = ensemble if ensemble else None
+
+            meta_ensemble = self.get_metaensemble_by_id(0)
+            if meta_ensemble:
+                record.meta_ensemble = meta_ensemble 
+
+            performance = self.get_performance_by_id(performance_id)
+            record.performance = performance if performance else None
+
+            record.save()
+
+        return HttpResponse("Success")
+
+
+
+
+
+
 

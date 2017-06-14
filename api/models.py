@@ -308,7 +308,7 @@ class AlgoMetaData(models.Model):
 
 class Vertical(models.Model):
     name = models.CharField(max_length=55)
-    user = models.ForeignKey('User', null=True, blank=True)
+    user = models.ForeignKey('User', null=True, blank=True, related_name="vertical_user")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -380,10 +380,7 @@ class User(models.Model):
     parent_id = models.IntegerField(default=0)
     group = models.ForeignKey('UserGroup', null=True, blank=True, default=None)
     tags = models.CharField(max_length=255, null=True, blank=True, default=None)
-    # username = models.CharField(max_length=255, unique=True)
-    # email = models.CharField(max_length=255, unique=True, default=None)
-    # password = models.CharField(max_length=255)
-    # remember_token = models.CharField(max_length=255)
+    vertical = models.CharField(max_length=255, null=True, blank=True)
     image = models.CharField(max_length=255, null=True, blank=True, default=None)
     profile_name = models.CharField(max_length=255, null=True, blank=True, default=None)
     profile_description = models.CharField(max_length=255, null=True, blank=True, default=None)
@@ -480,4 +477,45 @@ class SolutionType(models.Model):
 
     def __str__(self):
         return self.name
+
+class SolutionNavigation(models.Model):
+    vertical = models.ForeignKey("Vertical", default=0, related_name="solutionnavigations_vertical")
+    category = models.ForeignKey("Category", default=0, related_name="solutionnavigations_category")
+    category_child = models.ForeignKey("Category", default=0, related_name="solutionnavigations_category_child")
+    library = models.ForeignKey("Library", default=0)
+    solition = models.ForeignKey("Solution", default=0, related_name="solutionnavigations_vertical")
+    solution_child = models.ForeignKey("Solution", default=0, related_name="solutionnavigations_solution")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return str(self.id)
+
+class AnalyticsRecord(models.Model):
+    user = models.ForeignKey("User", default=None, null=True, blank=True)
+    usergroup = models.ForeignKey("UserGroup", default=None, null=True, blank=True)
+    vertical = models.ForeignKey("Vertical", default=None, null=True, blank=True)
+    category = models.ForeignKey("Category", default=None, null=True, blank=True, related_name="analytics_category")
+    category_parent = models.ForeignKey("Category", default=None, null=True, blank=True)
+    library = models.ForeignKey("Library", default=None, null=True, blank=True)
+    solution = models.ForeignKey("Solution", default=None, null=True, blank=True, related_name="analytics_solution")
+    solution_parent = models.ForeignKey("Solution", null=True, blank=True, default=None)
+    notebook = models.ForeignKey("Notebook", default=None, null=True, blank=True, related_name="analytics_notebook")
+    notebook_parent = models.ForeignKey("Notebook", null=True, blank=True, default=None)
+    dataset = models.ForeignKey("Dataset", null=True, blank=True, default=None)
+    ensemble = models.ForeignKey("Ensemble", null=True, blank=True, default=None)
+    metaensemble = models.ForeignKey("MetaEnsemble", null=True, blank=True,default=None)
+    performance = models.ForeignKey("Performance", null=True, blank=True, default=None)
+    usergroup_name = models.CharField(max_length=255, null=True, blank=True, default=None)
+    vertical_name = models.CharField(max_length=255, null=True, blank=True, default=None)
+    category_name = models.CharField(max_length=255, null=True, blank=True, default=None)
+    solution_name = models.CharField(max_length=255, null=True, blank=True, default=None)
+    notebook_name = models.CharField(max_length=255, null=True, blank=True, default=None)
+    notebook_description = models.CharField(max_length=1000, null=True, blank=True, default=None)
+    performance_name = models.CharField(max_length=255, null=True, blank=True, default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    
+    def __unicode__(self):
+        return str(self.id)
 
